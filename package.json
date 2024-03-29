@@ -1,0 +1,38 @@
+{
+  "name": "webscrape-workbench",
+  "version": "1.0.0",
+  "description": "This is the experimental version of the webscraper we will be using for PricePinion.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "dev": "tsc && node dist/index.js",
+    "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
+    "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PricePinion/Webscrape-Workbench.git"
+  },
+  "author": "PricePinion Ltd.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PricePinion/Webscrape-Workbench/issues"
+  },
+  "homepage": "https://github.com/PricePinion/Webscrape-Workbench#readme",
+  "devDependencies": {
+    "@types/chai": "^4.3.14",
+    "@types/mocha": "^10.0.6",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "chai": "^5.1.0",
+    "eslint": "^8.57.0",
+    "mocha": "^10.4.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@types/cheerio": "^0.22.35",
+    "axios": "^1.6.8",
+    "cheerio": "^1.0.0-rc.12"
+  }
+}
