@@ -19,13 +19,13 @@ const scrapeSite = async (url: string) => {
     await page.goto(url);
 
     // Finding the first h1 which is the title "Baby"
-    const resultElement = await page.$("h1");
-    const message = await resultElement?.evaluate((e) => e.textContent);
-
-    // Close the browser
+    const result =  await page.waitForSelector("h1").then((element) => {
+        return element?.evaluate((e) => {
+            return e.textContent;
+        })
+    });
     await browser.close();
-    // Return the value for the first h1
-    return message;
+    return await result;
 };
 
 export const fredMeyerScraper = async () => {
