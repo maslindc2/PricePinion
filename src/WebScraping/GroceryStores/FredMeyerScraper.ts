@@ -1,75 +1,41 @@
-// Importing axios and it's response type (welcome to typescript you need a type for everything)
-import axios, { AxiosResponse } from "axios";
-// We use cheerio to handle manipulating HTML and XHTML
-import cheerio from "cheerio";
-
-interface driverData {
-    position: number;
-    driver: string;
-    car: string;
-}
+/**
+ * This is the Fred Meyer web scraper which is responsible for scraping all of the products from Fred Meyer.
+ * We utilize a few libraries called Puppeteeer and Puppeteer Stealth.
+ * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
+ */
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 // We starting with scraping the Baby Food section of FredMeyer as it's only 71 products
-const scrapeBabyFood = (url: string): Promise<driverData[]> => {
-    return axios
-        .get(url)
-        .then((res: AxiosResponse) => {
-            // Store the response data
-            const html = res.data;
-            // Pass the html data to cheerio
-            const $ = cheerio.load(html);
-            // Tell cheerio we want the information located in the .resultsarchive-table class then any info in the table body and finally the table row.
-            const rankingTableRows = $(".resultsarchive-table > tbody > tr");
-            // Using our interface for storing rankings later on
-            const rankings: driverData[] = [];
+// TODO: Turn this function into something that can be reused and not hardcoded
+const scrapeSite = async (url: string) => {
+    // Tell the puppeteer object to use the Stealth plugin
+    puppeteer.use(StealthPlugin());
+    // Set up the browser and launch it
+    const browser = await puppeteer.launch();
+    // Open a new blank page
+    const page = await browser.newPage();
+    // Navigate to the target page
+    await page.goto(url);
 
-            // Iterate through the information captured by cheerio after targeting the class, tablebody, tablerow
-            rankingTableRows.each((i: number, elem: object) => {
-                // Find and store the element that contains the position number
-                const position: number = parseInt(
-                    $(elem)
-                        .find(`tr:nth-child(${i + 1}) > td:nth-child(2)`)
-                        .text()
-                );
-                // Find and store the drivers first name
-                const firstName: string = $(elem)
-                    .find(
-                        `tr:nth-child(${i + 1}) > td:nth-child(3) .hide-for-tablet`
-                    )
-                    .text()
-                    .trim();
-                // Find and store the drivers last name
-                const lastName: string = $(elem)
-                    .find(
-                        `tr:nth-child(${i + 1}) > td:nth-child(3) .hide-for-mobile`
-                    )
-                    .text()
-                    .trim();
-                // Concatenate the first name and last name because F1 split the driver names into two different span tags
-                const driver = firstName + " " + lastName;
-                // Find and store the race car information
-                const car: string = $(elem)
-                    .find(`tr:nth-child(${i + 1}) > td:nth-child(5)`)
-                    .text()
-                    .trim();
-                // Push the information we collected to the rankings array
-                rankings.push({
-                    position,
-                    driver,
-                    car,
-                });
-            });
-            // Finally print the information we captured
-            return rankings;
-        })
-        .catch((error: object) => {
-            throw error;
-        });
+    // Finding the first h1 which is the title "Baby"
+    const resultElement = await page.$("h1");
+    const message = await resultElement?.evaluate((e) => e.textContent);
+
+    // Close the browser
+    await browser.close();
+    // Return the value for the first h1
+    return message;
 };
 
-export const fredMeyerScraper = () => {
+export const fredMeyerScraper = async () => {
+    // Printing that we are in this function
     console.log("Running Fred Meyer Scraping Job");
-    const babyFoodUrl =
-        "https://www.formula1.com/en/results.html/2024/drivers.html";
-    return scrapeBabyFood(babyFoodUrl);
+
+    // This is the url for the first page to scrape
+    const url = "https://www.fredmeyer.com/pl/baby/18002?page=1";
+
+    // waiting till the scrape has finished before we return the data from the function
+    // This is just temporary I'll have this looking good soon.
+    return await scrapeSite(url);
 };

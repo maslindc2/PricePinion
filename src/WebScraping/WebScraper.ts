@@ -7,7 +7,9 @@
 import { fredMeyerScraper } from "./GroceryStores/FredMeyerScraper";
 
 export const webScraperController = () => {
+    // Logging that we running the Webscraper controller
     console.log("Reached WebScraper Controller");
+    // Run the FredMeyer webscraper once we have the data the print it to the console.
     fredMeyerScraper().then((data) => {
         console.log(data);
     });
