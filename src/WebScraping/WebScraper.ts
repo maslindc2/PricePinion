@@ -11,6 +11,9 @@ export const webScraperController = () => {
     console.log("Reached WebScraper Controller");
     // Run the FredMeyer webscraper once we have the data the print it to the console.
     fredMeyerScraper().then((data) => {
-        console.log(data);
+        for (let index = 0; index < data.length; index++) {
+            // We are currently only printing the size of the scrape result array for each URL
+            console.log(`Scraped URL Number ${index+1} resulted in ${data[index]?.length} products scraped.`);
+        }
     });
 };
