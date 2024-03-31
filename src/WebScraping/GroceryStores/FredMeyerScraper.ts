@@ -10,12 +10,11 @@ import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 /**
  * Creating a browser instance.
- * When you run the scraper, no browser will open because it's headless.
- * Replace puppeteer.launch() with puppeteer.launch({headless: false}) to show a browser windows.
+ * Set headless for puppeteer.launch to false if you want to see a browser window and scraping actions.
  * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
  */
 const createBrowserInstance = async (): Promise<Browser> => {
-    // Tell the puppeteer object to use the Stealth plugin
+    // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
     puppeteer.use(StealthPlugin());
     // Create a browser instance
     const browser = await puppeteer.launch({ headless: false });
@@ -24,7 +23,7 @@ const createBrowserInstance = async (): Promise<Browser> => {
 };
 
 /**
- * This is a function to delay the execution of certain tasks, sometimes the website loads slowly 
+ * This is a function to delay the execution of certain tasks, sometimes the website loads slowly
  * this prevents any problems with skipping products or elements because they haven't loaded.
  * TODO Figure out a better solution for this.
  * @param ms number of ms to sleep for
@@ -35,7 +34,7 @@ const sleepBeforeOperation = (ms: number) => {
 };
 
 /**
- * This is the scraping function that performs the web scraping
+ * This is the scraping function that performs the web scraping.
  * @param {string} url URL we are going to scrape
  * @param {Browser} browser browser instance to use for scraping
  * @param {boolean} scrapeRecursively scrapes all the pages of the provided url. If set to false: only the first page is scraped.
@@ -52,7 +51,7 @@ const scrapeSite = async (
     // Navigate to the target page
     await page.goto(url);
 
-    // We wait for the .AutoGrid class to load (this is the product grouping).
+    // We wait for the .AutoGrid class to load (this is the grid of products).
     const productGridContainer = await page.waitForSelector(".AutoGrid");
 
     // If the product grid container is undefined then we failed to find a div with the class AutoGrid
@@ -60,36 +59,35 @@ const scrapeSite = async (
         console.error("Failed to locate .AutoGrid element!");
         return null;
     }
-
+    // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
     if (scrapeRecursively) {
-        console.log(
-            "Scraping Recursively Enabled!\nThis might take a bit!"
-        );
+        console.log("Scraping Recursively Enabled!\nThis might take a bit!");
         // This is variable used for checking if the Load More Results button exists
         let loadMoreResultsExists = true;
         // The below loop continues to load items on the page until the Load More Results button no longer exists.
         while (loadMoreResultsExists) {
             try {
-                // Here we wait for 500ms before clicking the next button. Fred Meyer is sometimes slow with rendering the buttons.
+                // Wait for 500ms before clicking the next button. Fred Meyer is sometimes slow with rendering the buttons.
                 await sleepBeforeOperation(500).then(async () => {
                     // Check if the Load More Results button exists, throws an error if it doesn't exist
-                    // We have to use the below class structure because they reuse the LoadMore__load-more-button for load previous results too.
+                    // We have to use the below class structure because they reuse the class "LoadMore__load-more-button" 
+                    // for the load previous results button too. 
                     loadMoreResultsExists = await page.$eval(
                         ".mt-32 > .LoadMore__load-more-button",
                         (button) => button !== null
                     );
-                    // If the above didn't throw an error then the button exists and we click it.
+                    // If the above didn't throw an error, then the button exists and we click it.
                     await page.click(".mt-32 > .LoadMore__load-more-button");
                 });
             } catch (error) {
-                // If we are here the Load More Results button no longer exists
+                // If we are here then the Load More Results button no longer exists
                 loadMoreResultsExists = false;
             }
         }
 
         // Once all the products have been loaded we can start scraping.
         // Due to how Fred Meyer loads elements the website might lag before rendering the final products.
-        // To Fix this we sleep for 5 seconds then scrape
+        // To Fix this we sleep for 5 seconds and then scrape the products. 
         // TODO: Come up with a better way to fix this issue.
         const scrapedProducts = sleepBeforeOperation(5000).then(async () => {
             // Scrape all of the products in the product grid container
@@ -264,17 +262,20 @@ export const fredMeyerScraper = async () => {
 
     // This is the browser instance Puppeteer will use for the scraping.
     const browserInstance = await createBrowserInstance();
-    
+
     // We will first scrape Baby Food which is 72 products and also scrape Fresh Vegetables which only contains 264 products (even though they say 484 results);
-    const urls = ["https://www.fredmeyer.com/pl/baby/18002?page=1", "https://www.fredmeyer.com/pl/fresh-vegetables/06112?"];
-    
+    const urls = [
+        "https://www.fredmeyer.com/pl/baby/18002?page=1",
+        "https://www.fredmeyer.com/pl/fresh-vegetables/06112?",
+    ];
+
     // Here we will scrape multiple URLs sequnetially.
     // TODO: Set this up as concurrent operations
     // NOTE: If scrapeRecursively (third parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Requires a url array, browser instance, and scrapRecursively set to either true or false.
     const result = await scrapeMultipleURLs(urls, browserInstance, true);
-    
-    // Close the browser instance once finished. 
+
+    // Close the browser instance once finished.
     // We only have one instance as each url is going to be in it's own tab.
     await browserInstance.close();
     // Return the result of our product scraping.

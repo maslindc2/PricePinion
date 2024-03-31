@@ -13,7 +13,9 @@ export const webScraperController = () => {
     fredMeyerScraper().then((data) => {
         for (let index = 0; index < data.length; index++) {
             // We are currently only printing the size of the scrape result array for each URL
-            console.log(`Scraped URL Number ${index+1} resulted in ${data[index]?.length} products scraped.`);
+            console.log(
+                `Scraped URL Number ${index + 1} resulted in ${data[index]?.length} products scraped.`
+            );
         }
     });
 };
