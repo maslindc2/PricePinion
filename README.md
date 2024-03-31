@@ -1,4 +1,4 @@
-# Webscraper
+# PricePinion Web Scraper
 This repo is for developing the web scraper we will need to use for PricePinion.
 ## Development Instructions
 ### Getting the packages.
