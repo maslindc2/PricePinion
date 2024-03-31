@@ -1,5 +1,5 @@
-# Webscrape-Workbench
-This repo is for experimenting with the web scraper we will need to use for PricePinion.
+# Webscraper
+This repo is for developing the web scraper we will need to use for PricePinion.
 ## Development Instructions
 ### Getting the packages.
 Just like any JavaScript/Typescript project we need to install all the packages.
@@ -11,7 +11,7 @@ package.json contains all of the packages required. If you run into any issues p
 ### Starting the development server
 Since Typescript is just translated JavaScript we need to execute the typescript compiler (tsc) and then run the translated JavaScript.
 
-We can do this in one simple command `npm run dev`.  This will execute tsc to compile the Typescript code, then it calls node dist/index.js to run the program.
+We can do this in one simple command `npm run dev`.  This will execute tsc to compile the Typescript code, then it executes node dist/index.js to run the program.
 
 ### All the other commands
 #### Formatting
