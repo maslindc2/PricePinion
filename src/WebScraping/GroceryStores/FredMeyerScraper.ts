@@ -3,6 +3,7 @@
  * We utilize a few libraries called Puppeteeer and Puppeteer Stealth.
  * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
  */
+import { logger } from "@logger";
 import { Browser, ElementHandle } from "puppeteer";
 import puppeteer from "puppeteer-extra";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
@@ -54,32 +55,39 @@ const scrapeSite = async (
 
     // If the product grid container is undefined then we failed to find a div with the class AutoGrid
     if (!productGridContainer) {
-        console.error("Failed to locate .AutoGrid element!");
+        logger.error("Failed to locate .AutoGrid element!");
         return null;
     }
     // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
     if (scrapeRecursively) {
-        console.info("Scraping Recursively Enabled!\nThis might take a bit!");
+        logger.debug("Scraping Recursively Enabled! This might take a bit!");
         // This is variable used for checking if the Load More Results button exists
         let loadMoreResultsExists = true;
         // The below loop continues to load items on the page until the Load More Results button no longer exists.
         while (loadMoreResultsExists) {
             try {
-                // Wait for CLICK_DELAY seconds (or if env is undefined wait 800ms) before clicking the next button. 
+                // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
+                // This is tied to network speed so somtimes Fred Meyer response times are slow sometimes they are fast.
                 // Fred Meyer is sometimes slow with rendering the buttons.
-                await sleepBeforeOperation(parseInt(<string> process.env.CLICK_DELAY) || 500).then(async () => {
+                await sleepBeforeOperation(
+                    parseInt(<string>process.env.CLICK_DELAY) || 500
+                ).then(async () => {
                     // Check if the Load More Results button exists, throws an error if it doesn't exist
-                    // We have to use the below class structure because they reuse the class "LoadMore__load-more-button" 
-                    // for the load previous results button too. 
-                    loadMoreResultsExists = await page.$eval(
-                        ".mt-32 > .LoadMore__load-more-button",
-                        (button) => button !== null
-                    ).then(async (buttonExists) => {
-                        // If the above didn't throw an error, then the button exists and we click it.
-                        await page.click(".mt-32 > .LoadMore__load-more-button");
-                        // Return the value from previous promise. 
-                        return buttonExists;
-                    });
+                    // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
+                    // for the load previous results button too.
+                    loadMoreResultsExists = await page
+                        .$eval(
+                            ".mt-32 > .LoadMore__load-more-button",
+                            (button) => button !== null
+                        )
+                        .then(async (buttonExists) => {
+                            // If the above didn't throw an error, then the button exists and we click it.
+                            await page.click(
+                                ".mt-32 > .LoadMore__load-more-button"
+                            );
+                            // Return the value from previous promise.
+                            return buttonExists;
+                        });
                 });
             } catch (error) {
                 // If we are here then the Load More Results button no longer exists
@@ -89,8 +97,10 @@ const scrapeSite = async (
 
         // Once all the products have been loaded we can start scraping.
         // Due to how Fred Meyer loads elements the website might lag before rendering the final products.
-        // To Fix this we sleep for SCRAPE_DELAY seconds (5 seconds if env is not defined) and then scrape the products. 
-        const scrapedProducts = sleepBeforeOperation(parseInt(<string> process.env.SCRAPE_DELAY) || 3000).then(async () => {
+        // To Fix this we sleep for SCRAPE_DELAY seconds (5 seconds if env is not defined) and then scrape the products.
+        const scrapedProducts = sleepBeforeOperation(
+            parseInt(<string>process.env.SCRAPE_DELAY) || 3000
+        ).then(async () => {
             // Scrape all of the products in the product grid container
             const scrapedProducts = await scrapePage(productGridContainer);
             // Once scraping has finished close the page.
@@ -246,15 +256,19 @@ const scrapeMultipleURLs = async (
         try {
             // Creates a browser instance before we scrape the site.
             // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-            const browserInstance = await createBrowserInstance()
+            const browserInstance = await createBrowserInstance();
             // Run scrape site with the current URL and store the scraped products
-            const scrapedProducts =  await scrapeSite(url, browserInstance, scrapeRecursively);
+            const scrapedProducts = await scrapeSite(
+                url,
+                browserInstance,
+                scrapeRecursively
+            );
             // Close the browser instance once finished.
             await browserInstance.close();
             // Return the scraped products
             return scrapedProducts;
         } catch (error) {
-            console.error(`Error scraping ${url}:`, error);
+            logger.error(`Error scraping ${url}:`, error);
             return null;
         }
     });
@@ -268,12 +282,12 @@ const scrapeMultipleURLs = async (
  */
 export const fredMeyerScraper = async () => {
     // Printing that we are in this function
-    console.log("Running Fred Meyer Scraping Job");
+    logger.info("Running Fred Meyer Scraping Job");
 
     // We will first scrape Baby Food which is 72 products and also scrape Fresh Vegetables which only contains 264 products (even though they say 484 results);
     const urls = [
         "https://www.fredmeyer.com/pl/baby/18002?page=1",
-        "https://www.fredmeyer.com/pl/fresh-vegetables/06112?"
+        "https://www.fredmeyer.com/pl/fresh-vegetables/06112?",
     ];
 
     // Here we will scrape multiple URLs concurrently.
