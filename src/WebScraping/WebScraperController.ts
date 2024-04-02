@@ -5,7 +5,7 @@
  * Storing the data to the DB could be handled in a different class we'll cross that bridge when we get to it.
  */
 import { logger } from "@logger";
-import { fredMeyerScraper } from "./GroceryStores/FredMeyerScraper";
+import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
 export const webScraperController = () => {
     // Logging that we running the Webscraper controller
     logger.debug("Reached WebScraper Controller");

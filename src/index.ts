@@ -4,7 +4,7 @@
  * For now we are just calling the main webscraper controller.
  */
 // Importing the web scraper controller from our webscraping directory
-import { webScraperController } from "./WebScraping/WebScraper";
+import { webScraperController } from "./WebScraping/WebScraperController";
 
 // Calling the web scraper controller
 webScraperController();

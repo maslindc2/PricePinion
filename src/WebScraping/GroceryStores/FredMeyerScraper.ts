@@ -17,7 +17,7 @@ const createBrowserInstance = async (): Promise<Browser> => {
     // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
     puppeteer.use(StealthPlugin());
     // Create a browser instance
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     // Return the browser instance we created.
     return browser;
 };
@@ -69,26 +69,15 @@ const scrapeSite = async (
                 // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
                 // This is tied to network speed so somtimes Fred Meyer response times are slow sometimes they are fast.
                 // Fred Meyer is sometimes slow with rendering the buttons.
-                await sleepBeforeOperation(
-                    parseInt(<string>process.env.CLICK_DELAY) || 500
-                ).then(async () => {
+                await sleepBeforeOperation(parseInt(<string>process.env.CLICK_DELAY) || 500).then(async () => {
                     // Check if the Load More Results button exists, throws an error if it doesn't exist
                     // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
                     // for the load previous results button too.
-                    loadMoreResultsExists = await page
-                        .$eval(
-                            ".mt-32 > .LoadMore__load-more-button",
-                            (button) => button !== null
-                        )
-                        .then(async (buttonExists) => {
-                            // If the above didn't throw an error, then the button exists and we click it.
-                            await page.click(
-                                ".mt-32 > .LoadMore__load-more-button"
-                            );
-                            // Return the value from previous promise.
-                            return buttonExists;
-                        });
+                    loadMoreResultsExists = await page.$eval(".mt-32 > .LoadMore__load-more-button", (button) => button !== null);
+                    // If the above didn't throw an error, then the button exists and we click it.
+                    await page.click(".mt-32 > .LoadMore__load-more-button");
                 });
+
             } catch (error) {
                 // If we are here then the Load More Results button no longer exists
                 loadMoreResultsExists = false;
