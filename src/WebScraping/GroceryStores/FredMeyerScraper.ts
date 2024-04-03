@@ -5,22 +5,12 @@
  */
 import { logger } from "@logger";
 import { Browser, ElementHandle } from "puppeteer";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
-
-/**
- * Creating a browser instance.
- * Set headless for puppeteer.launch to false if you want to see a browser window and scraping actions.
- * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
- */
-const createBrowserInstance = async (): Promise<Browser> => {
-    // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
-    puppeteer.use(StealthPlugin());
-    // Create a browser instance
-    const browser = await puppeteer.launch({ headless: true });
-    // Return the browser instance we created.
-    return browser;
-};
+import { ProductInfo, scrapeMultipleURLs } from "@scraper-utils";
+import {
+    extractProductImage,
+    extractProductURL,
+    extractFromAria,
+} from "@scraper-extractors";
 
 /**
  * This is a function to delay the execution of certain tasks, sometimes the website loads slowly
@@ -69,15 +59,19 @@ const scrapeSite = async (
                 // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
                 // This is tied to network speed so somtimes Fred Meyer response times are slow sometimes they are fast.
                 // Fred Meyer is sometimes slow with rendering the buttons.
-                await sleepBeforeOperation(parseInt(<string>process.env.CLICK_DELAY) || 500).then(async () => {
+                await sleepBeforeOperation(
+                    parseInt(<string>process.env.CLICK_DELAY) || 500
+                ).then(async () => {
                     // Check if the Load More Results button exists, throws an error if it doesn't exist
                     // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
                     // for the load previous results button too.
-                    loadMoreResultsExists = await page.$eval(".mt-32 > .LoadMore__load-more-button", (button) => button !== null);
+                    loadMoreResultsExists = await page.$eval(
+                        ".mt-32 > .LoadMore__load-more-button",
+                        (button) => button !== null
+                    );
                     // If the above didn't throw an error, then the button exists and we click it.
                     await page.click(".mt-32 > .LoadMore__load-more-button");
                 });
-
             } catch (error) {
                 // If we are here then the Load More Results button no longer exists
                 loadMoreResultsExists = false;
@@ -107,18 +101,6 @@ const scrapeSite = async (
         return pageData;
     }
 };
-
-/**
- * Used for storing information about products.
- * Currently these fields can either be strings or null.
- * We can change the types later on when we start designing the DB part.
- */
-interface ProductInfo {
-    name: string | null;
-    image: string | null;
-    price: string | null;
-    url: string | null;
-}
 
 /**
  * This function is responsible for scraping the current webpage.
@@ -152,7 +134,9 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
         );
 
         // Extract the current product URL using the current product and targeting the same as product name
+        // Kroger shortens the URL to just be p/product-id so we need to add the base url for the site.
         const productURL = await extractProductURL(
+            "https://www.fredmeyer.com",
             product,
             ".mb-4 > .kds-Link"
         );
@@ -169,99 +153,6 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
         productData.push(productInfo);
     }
     return productData;
-};
-
-/**
- * This function is responsible for extracting the product image
- * @param product This is the individual product cell
- * @param classStructure This is the class structure of the element we wish to extract.
- * @returns The image tag's source value. We'll save the image in the future. Returns null if the element wasn't found.
- */
-const extractProductImage = async (
-    product: ElementHandle,
-    classStructure: string
-) => {
-    const productImage = await product.$(classStructure);
-    if (productImage) {
-        return productImage.evaluate((element) => element.getAttribute("src"));
-    } else {
-        return null;
-    }
-};
-
-/**
- * This function is responsible for extracting the current product's URL.
- * @param product This is the individual product cell
- * @param classStructure This is the class structure of the element we wish to extract.
- * @returns The product's URL. Returns null if the element wasn't found.
- */
-const extractProductURL = async (
-    product: ElementHandle,
-    classStructure: string
-) => {
-    const productURL = await product.$(classStructure);
-    if (productURL) {
-        const productHREF = await productURL.evaluate((element) =>
-            element.getAttribute("href")
-        );
-        return "https://www.fredmeyer.com" + productHREF;
-    } else {
-        return null;
-    }
-};
-
-/**
- * This function is resonsible for extracting information from a Tag's AriaLabel.
- * AriaLabel's contain product names and prices on Kroger sites so we can reuse this function for both.
- * @param product This is the individual product cell
- * @param classStructure This is the class structure of the element we wish to extract.
- * @returns The aria label for an element. Returns null if the element wasn't found
- */
-const extractFromAria = async (
-    product: ElementHandle,
-    classStructure: string
-) => {
-    const productElement = await product.$(classStructure);
-    if (productElement) {
-        return productElement.evaluate((element) => element.ariaLabel);
-    } else {
-        return null;
-    }
-};
-
-/**
- * The below function is responsible for scraping multiple sites at a time.
- * The Fred Meyer scraper function can either scrape one page or run concurrent scrape jobs.
- * @param urls array of urls that we want to scrape.
- * @param scrapeRecursively sets if we are going to scrape all possible pages.
- * @returns The scraped product results from the promises.
- */
-const scrapeMultipleURLs = async (
-    urls: string[],
-    scrapeRecursively: boolean
-) => {
-    // Map all of the URLS to an array of promises
-    const scrapePromises = urls.map(async (url) => {
-        try {
-            // Creates a browser instance before we scrape the site.
-            // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-            const browserInstance = await createBrowserInstance();
-            // Run scrape site with the current URL and store the scraped products
-            const scrapedProducts = await scrapeSite(
-                url,
-                browserInstance,
-                scrapeRecursively
-            );
-            // Close the browser instance once finished.
-            await browserInstance.close();
-            // Return the scraped products
-            return scrapedProducts;
-        } catch (error) {
-            logger.error(`Error scraping ${url}:`, error);
-            return null;
-        }
-    });
-    return Promise.all(scrapePromises);
 };
 
 /**
@@ -282,7 +173,7 @@ export const fredMeyerScraper = async () => {
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Requires a url array, and scrapRecursively set to either true or false.
-    const result = await scrapeMultipleURLs(urls, true);
+    const result = await scrapeMultipleURLs(urls, true, scrapeSite);
 
     // Return the result of our product scraping.
     return result;

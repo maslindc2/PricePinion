@@ -1,0 +1,78 @@
+/**
+ * Here we export all the various information browser utilities we will use for the various scrapers.
+ * Consits of Creating a browser instance and scrapeMultipleURLs for concurrent scraping.
+ */
+import { logger } from "@logger";
+import { Browser } from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+/**
+ * Used for storing information about products.
+ * Currently these fields can either be strings or null.
+ * We can change the types later on when we start designing the DB part.
+ */
+export interface ProductInfo {
+    name: string | null;
+    image: string | null;
+    price: string | null;
+    url: string | null;
+}
+
+interface ScrapeSite {
+    (
+        url: string,
+        browser: Browser,
+        scrapeRecursively: boolean
+    ): Promise<ProductInfo[] | null>;
+}
+
+/**
+ * Creating a browser instance.
+ * Set headless for puppeteer.launch to false if you want to see a browser window and scraping actions.
+ * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
+ */
+export const createBrowserInstance = async (): Promise<Browser> => {
+    // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
+    puppeteer.use(StealthPlugin());
+    // Create a browser instance
+    const browser = await puppeteer.launch({ headless: false });
+    // Return the browser instance we created.
+    return browser;
+};
+
+/**
+ * The below function is responsible for scraping multiple sites at a time.
+ * The Fred Meyer scraper function can either scrape one page or run concurrent scrape jobs.
+ * @param urls array of urls that we want to scrape.
+ * @param scrapeRecursively sets if we are going to scrape all possible pages.
+ * @returns The scraped product results from the promises.
+ */
+export const scrapeMultipleURLs = async (
+    urls: string[],
+    scrapeRecursively: boolean,
+    scrapeSite: ScrapeSite
+) => {
+    // Map all of the URLS to an array of promises
+    const scrapePromises = urls.map(async (url) => {
+        try {
+            // Creates a browser instance before we scrape the site.
+            // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
+            const browserInstance = await createBrowserInstance();
+            // Run scrape site with the current URL and store the scraped products
+            const scrapedProducts = await scrapeSite(
+                url,
+                browserInstance,
+                scrapeRecursively
+            );
+            // Close the browser instance once finished.
+            await browserInstance.close();
+            // Return the scraped products
+            return scrapedProducts;
+        } catch (error) {
+            logger.error(`Error scraping ${url}:`, error);
+            return null;
+        }
+    });
+    return Promise.all(scrapePromises);
+};

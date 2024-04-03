@@ -5,6 +5,8 @@
  */
 // Importing the web scraper controller from our webscraping directory
 import { webScraperController } from "./WebScraping/WebScraperController";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 // Calling the web scraper controller
 webScraperController();

@@ -4,11 +4,25 @@
     "description": "This is the experimental version of the webscraper we will be using for PricePinion.",
     "main": "index.js",
     "scripts": {
-        "test": "mocha",
+        "test": "mocha -r ts-node/register 'tests/**/*.ts'",
+        "test:coverage": "nyc --reporter=html mocha -r ts-node/register 'tests/**/*.ts'",
         "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-        "dev": "npm run build && node dist/index.js",
+        "dev": "npm run build && node dist/src/index.js",
         "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
+    },
+    "nyc": {
+        "extension": [
+            ".ts",
+            ".tsx"
+        ],
+        "exclude": [
+            "**/*.d.ts"
+        ],
+        "reporter": [
+            "html"
+        ],
+        "all": true
     },
     "repository": {
         "type": "git",
@@ -21,19 +35,24 @@
     },
     "homepage": "https://github.com/PricePinion/Webscrape-Workbench#readme",
     "devDependencies": {
+        "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@types/chai": "^4.3.14",
         "@types/mocha": "^10.0.6",
+        "@types/node": "^20.12.3",
         "@typescript-eslint/eslint-plugin": "^7.4.0",
         "@typescript-eslint/parser": "^7.4.0",
-        "chai": "^5.1.0",
+        "chai": "^4.4.1",
         "eslint": "^8.57.0",
         "mocha": "^10.4.0",
+        "nyc": "^15.1.0",
         "prettier": "^3.2.5",
+        "source-map-support": "^0.5.21",
+        "ts-node": "^9.1.1",
         "tsc-alias": "^1.8.8",
+        "tsconfig-paths": "^4.2.0",
         "typescript": "^5.4.3"
     },
     "dependencies": {
-        "@types/cheerio": "^0.22.35",
         "@types/puppeteer": "^7.0.4",
         "axios": "^1.6.8",
         "dotenv": "^16.4.5",
