@@ -19,14 +19,6 @@ export interface ProductInfo {
     url: string | null;
 }
 
-interface ScrapeSite {
-    (
-        url: string,
-        browser: Browser,
-        scrapeRecursively: boolean
-    ): Promise<ProductInfo[] | null>;
-}
-
 /**
  * Creating a browser instance.
  * Set headless for puppeteer.launch to false if you want to see a browser window and scraping actions.
@@ -42,10 +34,26 @@ export const createBrowserInstance = async (): Promise<Browser> => {
 };
 
 /**
+ * Each site must have it's own specialized scrape site function.
+ * To promote testability and good code practices we need to create an interface
+ * for the scrapesite function. This allows us to pass each scrapers scapesite function
+ * to our scrape multiple urls function
+ * @returns scraped information from products or null if it fails to scrape anything.
+ */
+interface ScrapeSite {
+    (
+        url: string,
+        browser: Browser,
+        scrapeRecursively: boolean
+    ): Promise<ProductInfo[] | null>;
+}
+
+/**
  * The below function is responsible for scraping multiple sites at a time.
  * The Fred Meyer scraper function can either scrape one page or run concurrent scrape jobs.
  * @param urls array of urls that we want to scrape.
  * @param scrapeRecursively sets if we are going to scrape all possible pages.
+ * @param scrapeSite each site has it's own scrape site function that must be passed to the scrapeMultipleURLs function.
  * @returns The scraped product results from the promises.
  */
 export const scrapeMultipleURLs = async (
