@@ -1,7 +1,9 @@
 name: Prettier
 on: 
   pull_request: 
-    branches: [main]
+    branches: [ main, master ]
+permissions:
+  actions: write
 jobs:
   format:
     runs-on: ubuntu-latest
