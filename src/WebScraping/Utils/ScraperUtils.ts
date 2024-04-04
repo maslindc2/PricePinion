@@ -21,14 +21,14 @@ export interface ProductInfo {
 
 /**
  * Creating a browser instance.
- * Set headless for puppeteer.launch to false if you want to see a browser window and scraping actions.
+ * @param runHeadless Set headless for puppeteer. Set to false if you want to see a browser window and scraping actions.
  * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
  */
-export const createBrowserInstance = async (): Promise<Browser> => {
+export const createBrowserInstance = async (runHeadless: boolean): Promise<Browser> => {
     // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
     puppeteer.use(StealthPlugin());
     // Create a browser instance
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: runHeadless });
     // Return the browser instance we created.
     return browser;
 };
@@ -66,7 +66,9 @@ export const scrapeMultipleURLs = async (
         try {
             // Creates a browser instance before we scrape the site.
             // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-            const browserInstance = await createBrowserInstance();
+            // Parameter sets headless, set this to false if you want to see the chrome window open and run the scraping job,
+            // set this to true if you don't want the chrome window to open.
+            const browserInstance = await createBrowserInstance(false);
             // Run scrape site with the current URL and store the scraped products
             const scrapedProducts = await scrapeSite(
                 url,
