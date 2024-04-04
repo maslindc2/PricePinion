@@ -6,16 +6,16 @@
  */
 import { logger } from "@logger";
 import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
-export const webScraperController = () => {
+export const webScraperController = async () => {
     // Logging that we running the Webscraper controller
     logger.debug("Reached WebScraper Controller");
     // Run the FredMeyer webscraper once we have the data the print it to the console.
-    fredMeyerScraper().then((data) => {
-        for (let index = 0; index < data.length; index++) {
-            // We are currently only printing the size of the scrape result array for each URL
-            logger.info(
-                `Scraped URL Number ${index + 1} resulted in ${data[index]?.length} products scraped.`
-            );
-        }
-    });
+    const scrapeResult = await fredMeyerScraper();
+    for (let index = 0; index < scrapeResult.length; index++) {
+        // We are currently only printing the size of the scrape result array for each URL
+        logger.info(
+            `Scraped URL Number ${index + 1} resulted in ${scrapeResult[index]?.length} products scraped.`
+        );
+    }
+    return scrapeResult;
 };

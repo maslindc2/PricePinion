@@ -172,7 +172,7 @@ export const fredMeyerScraper = async () => {
 
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
-    // Requires a url array, and scrapRecursively set to either true or false.
+    // Third parameter is the scrape site function built specifically for Fred Meyer
     const result = await scrapeMultipleURLs(urls, true, scrapeSite);
 
     // Return the result of our product scraping.
