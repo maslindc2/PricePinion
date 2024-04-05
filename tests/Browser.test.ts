@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { createBrowserInstance } from "@scraper-utils";
 
-// The below test creates a browser instance 
+// The below test creates a browser instance
 describe("createBrowserInstance", () => {
     it("creates a headless browser that has a headless agent", async () => {
         // Creates a browser instance with headless set to true

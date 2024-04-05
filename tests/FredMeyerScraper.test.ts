@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
 import { fail } from "assert";
-import * as dotenv from 'dotenv';
+import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Fred Meyer Scraper", async () => {
@@ -13,8 +13,8 @@ describe("Fred Meyer Scraper", async () => {
         expect(scrapeResutlts).to.not.be.empty;
 
         // Ensure that each index of scrape results is of type ProductInfo
-        for(const scrapeResult of scrapeResutlts){
-            if(scrapeResult){
+        for (const scrapeResult of scrapeResutlts) {
+            if (scrapeResult) {
                 // If the scrape result is defined then we
                 // check each product key in the scrape result is of type string.
                 // If it's null then it failed to extract information from the product
@@ -24,8 +24,8 @@ describe("Fred Meyer Scraper", async () => {
                     expect(product.url).to.be.string;
                     expect(product.image).to.be.string;
                 }
-            }else{
-                fail("Scrape Result for a url result is null!")
+            } else {
+                fail("Scrape Result for a url result is null!");
             }
         }
     });
