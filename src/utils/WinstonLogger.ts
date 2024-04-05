@@ -10,7 +10,7 @@
 import winston from "winston";
 export const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
-    level: "debug",
+    level: process.env.LOG_LEVEL || "debug",
     format: winston.format.cli(),
     transports: [new winston.transports.Console()],
 });
