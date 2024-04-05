@@ -4,7 +4,7 @@
     "description": "This is the experimental version of the webscraper we will be using for PricePinion.",
     "main": "index.js",
     "scripts": {
-        "test": "mocha -r ts-node/register 'tests/**/*.ts'",
+        "test": "mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
         "test:coverage": "nyc --reporter=html mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
         "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
         "dev": "npm run build && node dist/src/index.js",

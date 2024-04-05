@@ -5,6 +5,11 @@ on:
 jobs:
   unit_tests:
     runs-on: ubuntu-latest
+    env:
+      CLICK_DELAY: ${{ secrets.CLICK_DELAY }}
+      SCRAPE_DELAY: ${{ secrets.SCRAPE_DELAY }}
+      LOG_LEVEL: ${{ secrets.LOG_LEVEL }}
+      HEADLESS: ${{ secrets.HEADLESS }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
