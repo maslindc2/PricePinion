@@ -71,7 +71,7 @@ export const scrapeMultipleURLs = async (
             // Parameter sets headless, set this to false if you want to see the chrome window open and run the scraping job,
             // set this to true if you don't want the chrome window to open.
             const browserInstance = await createBrowserInstance(
-                Boolean(process.env.HEADLESS) || false
+                Boolean(process.env.HEADLESS) || true
             );
             // Run scrape site with the current URL and store the scraped products
             const scrapedProducts = await scrapeSite(

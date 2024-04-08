@@ -164,16 +164,20 @@ export const fredMeyerScraper = async () => {
     // Printing that we are in this function
     logger.info("Running Fred Meyer Scraping Job");
 
-    // We will first scrape Baby Food which is 72 products and also scrape Fresh Vegetables which only contains 264 products (even though they say 484 results);
+    // Here we are defining the array of urls that we are going to scrape.
     const urls = [
-        "https://www.fredmeyer.com/pl/baby/18002?page=1",
-        "https://www.fredmeyer.com/pl/fresh-vegetables/06112?",
+        "https://www.fredmeyer.com/pl/meat-seafood/18004",
+        "https://www.fredmeyer.com/pl/fresh-vegetables/06112",
+        "https://www.fredmeyer.com/pl/milk-plant-based-%20milk/02001",
+        "https://www.fredmeyer.com/pl/cheese/02002",
+        "https://www.fredmeyer.com/pl/butter-margarine/02004",
+        "https://www.fredmeyer.com/pl/eggs-egg-substitutes/02003"
     ];
 
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for Fred Meyer
-    const result = await scrapeMultipleURLs(urls, true, scrapeSite);
+    const result = await scrapeMultipleURLs(urls, false, scrapeSite);
 
     // Return the result of our product scraping.
     return result;
