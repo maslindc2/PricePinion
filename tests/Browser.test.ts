@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { createBrowserInstance } from "@scraper-utils";
+import { createBrowserInstance } from "@create-browser-instance";
 
 // The below test creates a browser instance
 describe("createBrowserInstance", () => {

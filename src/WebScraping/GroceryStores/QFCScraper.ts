@@ -1,8 +1,3 @@
-/**
- * This is the Fred Meyer web scraper which is responsible for scraping all of the products from Fred Meyer.
- * We utilize a few libraries called Puppeteeer and Puppeteer Stealth.
- * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
- */
 import { logger } from "@logger";
 import { Browser, ElementHandle } from "puppeteer";
 import {
@@ -32,7 +27,7 @@ const scrapeSite = async (
     const page = await browser.newPage();
 
     // Navigate to the target page
-    await page.goto(url, {timeout:0});
+    await page.goto(url, {timeout: 0});
 
     // We wait for the .AutoGrid class to load (this is the grid of products).
     const productGridContainer = await page.waitForSelector(".AutoGrid");
@@ -51,8 +46,7 @@ const scrapeSite = async (
         while (loadMoreResultsExists) {
             try {
                 // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
-                // This is tied to network speed so somtimes Fred Meyer response times are slow sometimes they are fast.
-                // Fred Meyer is sometimes slow with rendering the buttons.
+                // This is tied to network speed. QFC response times are slow and sometimes they are fast.
                 await sleepBeforeOperation(
                     parseInt(<string>process.env.CLICK_DELAY) || 500
                 ).then(async () => {
@@ -73,7 +67,7 @@ const scrapeSite = async (
         }
 
         // Once all the products have been loaded we can start scraping.
-        // Due to how Fred Meyer loads elements the website might lag before rendering the final products.
+        // Due to how QFC loads elements the website might lag before rendering the final products.
         // To Fix this we sleep for SCRAPE_DELAY seconds (5 seconds if env is not defined) and then scrape the products.
         const scrapedProducts = sleepBeforeOperation(
             parseInt(<string>process.env.SCRAPE_DELAY) || 3000
@@ -130,7 +124,7 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
         // Extract the current product URL using the current product and targeting the same as product name
         // Kroger shortens the URL to just be p/product-id so we need to add the base url for the site.
         const productURL = await extractProductURL(
-            "https://www.fredmeyer.com",
+            "https://www.qfc.com",
             product,
             ".mb-4 > .kds-Link"
         );
@@ -150,28 +144,27 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
 };
 
 /**
- * This is the Fred Meyer scraper function.
+ * This is the QFC scraper function.
  * This function defines an array of URL's that we pass to scrapeMultipleURLS,
  * where the scraping is done concurrently.
- * @returns the result from scraping Fred Meyer
+ * @returns the result from scraping QFC
  */
-export const fredMeyerScraper = async () => {
+export const qfcScraper = async () => {
     // Printing that we are in this function
-    logger.info("Running Fred Meyer Scraping Job");
+    logger.info("Running QFC Scraping Job");
 
     // Here we are defining the array of urls that we are going to scrape.
     const urls = [
-        "https://www.fredmeyer.com/pl/meat-seafood/18004",
-        "https://www.fredmeyer.com/pl/fresh-vegetables/06112",
-        "https://www.fredmeyer.com/pl/milk-plant-based-%20milk/02001",
-        "https://www.fredmeyer.com/pl/cheese/02002",
-        "https://www.fredmeyer.com/pl/butter-margarine/02004",
-        "https://www.fredmeyer.com/pl/eggs-egg-substitutes/02003",
+        "https://www.qfc.com/pl/meat-seafood/18004",
+        "https://www.qfc.com/pl/fresh-vegetables/06112",
+        "https://www.qfc.com/pl/milk-plant-based-%20milk/02001",
+        "https://www.qfc.com/pl/cheese/02002",
+        "https://www.qfc.com/pl/butter-margarine/02004",
+        "https://www.qfc.com/pl/eggs-egg-substitutes/02003",
     ];
-
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
-    // Third parameter is the scrape site function built specifically for Fred Meyer
+    // Third parameter is the scrape site function built specifically for QFC
     const result = await scrapeMultipleURLs(urls, false, scrapeSite);
 
     // Return the result of our product scraping.

@@ -1,21 +1,31 @@
 /**
  * This is the Web Scraper controller for handling the web scraping jobs.
- * The current theory is index.ts will call this function.
- * The controller will then tell each of the grocery store crawlers to run.
- * Storing the data to the DB could be handled in a different class we'll cross that bridge when we get to it.
+ * The controller will tell each of the grocery store scrapers to run.
  */
 import { logger } from "@logger";
 import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
+import { qfcScraper } from "@store-scrapers/QFCScraper";
+
 export const webScraperController = async () => {
     // Logging that we running the Webscraper controller
     logger.debug("Reached WebScraper Controller");
-    // Run the FredMeyer webscraper once we have the data the print it to the console.
-    const scrapeResult = await fredMeyerScraper();
-    for (let index = 0; index < scrapeResult.length; index++) {
+    
+    // Run the FredMeyer and QFC webscraper once we have the data the print it to the console.
+    const fredMeyerScrapeResult = await fredMeyerScraper();
+    const qfcScrapeResult = await qfcScraper();
+
+    logger.info("Fred Meyer Scrape Results");
+    for (let index = 0; index < fredMeyerScrapeResult.length; index++) {
         // We are currently only printing the size of the scrape result array for each URL
         logger.info(
-            `Scraped URL Number ${index + 1} resulted in ${scrapeResult[index]?.length} products scraped.`
+            `Scraped URL Number ${index + 1} resulted in ${fredMeyerScrapeResult[index]?.length} products scraped.`
         );
     }
-    return scrapeResult;
+    logger.info("QFC Scrape Results");
+    for (let index = 0; index < qfcScrapeResult.length; index++) {
+        // We are currently only printing the size of the scrape result array for each URL
+        logger.info(
+            `Scraped URL Number ${index + 1} resulted in ${qfcScrapeResult[index]?.length} products scraped.`
+        );
+    }
 };

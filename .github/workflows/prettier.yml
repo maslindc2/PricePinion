@@ -1,24 +1,15 @@
 name: Prettier
 on: 
-  pull_request: 
+  push:
     branches: [ main, master ]
-permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+  pull_request:
+    branches: [ main, master ]
+permissions: write-all
 jobs:
   format:
     runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
-        with: 
-          ref: ${{ github.head_ref }}
-      - run: npm ci
-      - run: npm run format
-      - name: Commit 
-        uses: stefanzweifel/git-auto-commit-action@v5
+      - uses: actions/checkout@v2
+      - uses: actionsx/prettier@v2
         with:
-          commit_message: Formatted via Prettier
-          branch: ${{ github.head_ref }}
+          args: --write .
