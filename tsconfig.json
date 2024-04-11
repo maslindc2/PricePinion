@@ -36,7 +36,10 @@
             "@logger": ["./src/utils/WinstonLogger.ts"],
             "@store-scrapers/*": ["./src/WebScraping/GroceryStores/*"],
             "@scraper-utils": ["./src/WebScraping/Utils/ScraperUtils.ts"],
-            "@scraper-extractors": ["./src/WebScraping/Utils/Extractors.ts"]
+            "@scraper-extractors": ["./src/WebScraping/Utils/Extractors.ts"],
+            "@create-browser-instance": [
+                "./src/WebScraping/Utils/CreateBrowserInstance.ts"
+            ]
         } /* Specify a set of entries that re-map imports to additional lookup locations. */,
         // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
         // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */

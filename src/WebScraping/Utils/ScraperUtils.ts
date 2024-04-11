@@ -1,11 +1,16 @@
-/**
- * Here we export all the various information browser utilities we will use for the various scrapers.
- * Consits of Creating a browser instance and scrapeMultipleURLs for concurrent scraping.
- */
+import { createBrowserInstance } from "@create-browser-instance";
 import { logger } from "@logger";
 import { Browser } from "puppeteer";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+
+/**
+ * This is a function to delay the execution of certain tasks, sometimes a website loads slowly
+ * this prevents any problems with skipping products or elements because they haven't loaded.
+ * @param ms number of ms to sleep for
+ * @returns a resolved promise once the timeout has finished
+ */
+export const sleepBeforeOperation = (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+};
 
 /**
  * Used for storing information about products.
@@ -20,26 +25,10 @@ export interface ProductInfo {
 }
 
 /**
- * Creating a browser instance.
- * @param runHeadless Set headless for puppeteer. Set to false if you want to see a browser window and scraping actions.
- * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
- */
-export const createBrowserInstance = async (
-    runHeadless: boolean
-): Promise<Browser> => {
-    // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
-    puppeteer.use(StealthPlugin());
-    // Create a browser instance
-    const browser = await puppeteer.launch({ headless: runHeadless });
-    // Return the browser instance we created.
-    return browser;
-};
-
-/**
  * Each site must have it's own specialized scrape site function.
- * To promote testability and good code practices we need to create an interface
- * for the scrapesite function. This allows us to pass each scrapers scapesite function
- * to our scrape multiple urls function
+ * To promote testability and good coding practices we need to create an interface
+ * for the scrapesite function. This allows us to pass each scraper's scapesite function
+ * to our scrape multiple urls function.
  * @returns scraped information from products or null if it fails to scrape anything.
  */
 interface ScrapeSite {
@@ -66,13 +55,20 @@ export const scrapeMultipleURLs = async (
     // Map all of the URLS to an array of promises
     const scrapePromises = urls.map(async (url) => {
         try {
+            // The env variable HEADLESS sets if puppeteer should run headless (no chrome windows opening) or
+            // headful (chrome windows opening and visible to the developer).
+            // Casting a string "false" to a boolean becomes true. So we use the below to avoid this.
+            // IN PRODUCTION AND CI THIS MUST BE TRUE
+            let runHeadless;
+            if (process.env.HEADLESS === "false") {
+                runHeadless = false;
+            } else {
+                runHeadless = true;
+            }
+
             // Creates a browser instance before we scrape the site.
             // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-            // Parameter sets headless, set this to false if you want to see the chrome window open and run the scraping job,
-            // set this to true if you don't want the chrome window to open.
-            const browserInstance = await createBrowserInstance(
-                Boolean(process.env.HEADLESS) || false
-            );
+            const browserInstance = await createBrowserInstance(runHeadless);
             // Run scrape site with the current URL and store the scraped products
             const scrapedProducts = await scrapeSite(
                 url,

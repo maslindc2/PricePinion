@@ -6,7 +6,7 @@ import {
     extractProductURL,
 } from "@scraper-extractors";
 import { ElementHandle } from "puppeteer";
-import { createBrowserInstance } from "@scraper-utils";
+import { createBrowserInstance } from "@create-browser-instance";
 import sinon from "sinon";
 
 describe("Extract product url from a link", () => {
