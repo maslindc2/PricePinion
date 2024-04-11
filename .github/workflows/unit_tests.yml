@@ -8,7 +8,6 @@ permissions: write-all
 jobs:
   unit_tests:
     runs-on: ubuntu-latest
-    container: ghcr.io/puppeteer/puppeteer:latest
     env:
       CLICK_DELAY: ${{ secrets.CLICK_DELAY }}
       SCRAPE_DELAY: ${{ secrets.SCRAPE_DELAY }}
@@ -16,10 +15,6 @@ jobs:
       HEADLESS: ${{ secrets.HEADLESS }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/cache@v4
-        with:
-          path: '**/node_modules'
-          key: node_modules-${{ hashFiles('**/package-lock.json')}}
       - uses: actions/setup-node@v4
         with:
           node-version: lts/iron
