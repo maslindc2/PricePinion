@@ -1,7 +1,7 @@
 {
     "name": "webscrape-workbench",
     "version": "1.2.0",
-    "description": "This is the experimental version of the webscraper we will be using for PricePinion.",
+    "description": "This is the webscraper we will be using for PricePinion.",
     "main": "index.js",
     "scripts": {
         "test": "mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
