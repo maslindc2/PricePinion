@@ -6,8 +6,9 @@
  * Current we are setting the default log level to info and using the cli format.
  * In the future we can set a directory for logs to be stored and set the format to JSON,
  */
-
 import winston from "winston";
+import * as dotenv from "dotenv";
+dotenv.config();
 export const logger = winston.createLogger({
     levels: winston.config.syslog.levels,
     level: process.env.LOG_LEVEL || "debug",
