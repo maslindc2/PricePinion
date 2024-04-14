@@ -32,7 +32,7 @@ const scrapeSite = async (
     const page = await browser.newPage();
 
     // Navigate to the target page
-    await page.goto(url, {timeout:0});
+    await page.goto(url, { timeout: 0 });
 
     // We wait for the .AutoGrid class to load (this is the grid of products).
     const productGridContainer = await page.waitForSelector(".AutoGrid");
