@@ -156,8 +156,7 @@ describe("Extract inner text from a span tag", () => {
         const fakeSpanTag = await page.evaluateHandle(() => {
             const spanElement = document.createElement("span");
             spanElement.className = "product-price";
-            spanElement.textContent =
-                "$5.99";
+            spanElement.textContent = "$5.99";
             return spanElement;
         });
 
@@ -174,19 +173,14 @@ describe("Extract inner text from a span tag", () => {
         await browserInstance.close();
 
         // Expect the extracted url to contian our fake image url.
-        expect(fakeSpanInnerText).to.equal(
-            "$5.99"
-        );
+        expect(fakeSpanInnerText).to.equal("$5.99");
     });
     it("fails to locate product returns null", async () => {
         const productStub = sinon.createStubInstance(ElementHandle<Element>);
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractTagValue(
-            productStub,
-            "non-existent-class"
-        );
+        const result = await extractTagValue(productStub, "non-existent-class");
         // expect that the result is null
         expect(result).to.equal(null);
     });

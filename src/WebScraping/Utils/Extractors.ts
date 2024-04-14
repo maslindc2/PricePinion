@@ -66,7 +66,7 @@ export const extractFromAria = async (
 /**
  * This function is resonsible for extracting information from a Tag's value (a.k.a the part between the open tag and closed tag).
  * For some sites prices and product names are shown between tag's. The reason we can't do this for Kroger is they shove other tags into it
- * which causes issues with extacting information. 
+ * which causes issues with extacting information.
  * @param product This is the individual product cell
  * @param classStructure This is the class structure of the element we wish to extract.
  * @returns The tag value from an element. Returns null if the element wasn't found

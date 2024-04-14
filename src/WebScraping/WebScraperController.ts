@@ -10,7 +10,7 @@ import { wholeFoodsScraper } from "@store-scrapers/WholeFoodsScraper";
 export const webScraperController = async () => {
     // Logging that we running the Webscraper controller
     logger.debug("Reached WebScraper Controller");
-    
+
     // Run the FredMeyer and QFC webscraper once we have the data the print it to the console.
     const fredMeyerScrapeResult = await fredMeyerScraper();
     const qfcScrapeResult = await qfcScraper();
@@ -29,7 +29,7 @@ export const webScraperController = async () => {
         logger.info(
             `Scraped URL Number ${index + 1} resulted in ${qfcScrapeResult[index]?.length} products scraped.`
         );
-    }    
+    }
     logger.info("Whole Foods Scrape Results");
     for (let index = 0; index < wholeFoodsScrapeResult.length; index++) {
         // We are currently only printing the size of the scrape result array for each URL
