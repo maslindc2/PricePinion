@@ -21,8 +21,3 @@ To format the codebase, so it's easier to read (because TS/JS can get pretty ugl
 Once we set up our GitHub Actions I will run ESLint and Prettier each time code is pulled into main, so we don't have to do it each time.
 #### Testing
 To run tests execute the command `npm run test` to run tests using Mocha and Chai.
-
-To run tests with coverage execute the command `npm run test:coverage` to run tests and create a coverage report.
-- To open the HTML report go to the folder 'coverage' and open the index.html file with your browser.
-	- If you have issues with the website get the VSCode extension Live Server by Ritwick Dey.
-- Coverage reports are generated using the Nyc package.
