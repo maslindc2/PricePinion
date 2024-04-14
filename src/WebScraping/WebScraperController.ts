@@ -2,6 +2,7 @@
  * This is the Web Scraper controller for handling the web scraping jobs.
  * The controller will tell each of the grocery store scrapers to run.
  */
+import fs from "fs";
 import { logger } from "@logger";
 import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
 import { qfcScraper } from "@store-scrapers/QFCScraper";
@@ -11,30 +12,36 @@ export const webScraperController = async () => {
     // Logging that we running the Webscraper controller
     logger.debug("Reached WebScraper Controller");
 
-    // Run the FredMeyer and QFC webscraper once we have the data the print it to the console.
+    // Run the FredMeyer, QFC, and Whole Foods webscraper.
     const fredMeyerScrapeResult = await fredMeyerScraper();
     const qfcScrapeResult = await qfcScraper();
     const wholeFoodsScrapeResult = await wholeFoodsScraper();
 
-    logger.info("Fred Meyer Scrape Results");
-    for (let index = 0; index < fredMeyerScrapeResult.length; index++) {
-        // We are currently only printing the size of the scrape result array for each URL
-        logger.info(
-            `Scraped URL Number ${index + 1} resulted in ${fredMeyerScrapeResult[index]?.length} products scraped.`
-        );
+    // Once we have the data stringify it for exporting to a json file
+    const fmAsJson = JSON.stringify(fredMeyerScrapeResult);
+    const qfcAsJson = JSON.stringify(qfcScrapeResult);
+    const wfAsJson = JSON.stringify(wholeFoodsScrapeResult);
+
+    // Create a folder called ScrapeResults
+    if (!fs.existsSync("ScrapeResults")) {
+        fs.mkdirSync("ScrapeResults");
     }
-    logger.info("QFC Scrape Results");
-    for (let index = 0; index < qfcScrapeResult.length; index++) {
-        // We are currently only printing the size of the scrape result array for each URL
-        logger.info(
-            `Scraped URL Number ${index + 1} resulted in ${qfcScrapeResult[index]?.length} products scraped.`
-        );
-    }
-    logger.info("Whole Foods Scrape Results");
-    for (let index = 0; index < wholeFoodsScrapeResult.length; index++) {
-        // We are currently only printing the size of the scrape result array for each URL
-        logger.info(
-            `Scraped URL Number ${index + 1} resulted in ${wholeFoodsScrapeResult[index]?.length} products scraped.`
-        );
-    }
+    // Write the results from FredMeyer to a json
+    fs.writeFileSync("ScrapeResults/FredMeyer_Scrape_Results.json", fmAsJson, {
+        flag: "w",
+    });
+    // Write the results from FredMeyer to a json
+    fs.writeFileSync("ScrapeResults/QFC_Scrape_Results.json", qfcAsJson, {
+        flag: "w",
+    });
+    // Write the results from FredMeyer to a json
+    fs.writeFileSync("ScrapeResults/WholeFoods_Scrape_Results.json", wfAsJson, {
+        flag: "w",
+    });
+    logger.info(
+        "Wrote scrape results to JSON's in the directory ScrapeResults"
+    );
+    logger.info(
+        "Make sure to execute 'npm run format' to format the ugly json output!"
+    );
 };
