@@ -4,6 +4,7 @@ import {
     extractFromAria,
     extractProductImage,
     extractProductURL,
+    extractTagValue,
 } from "@scraper-extractors";
 import { ElementHandle } from "puppeteer";
 import { createBrowserInstance } from "@create-browser-instance";
@@ -134,6 +135,55 @@ describe("Extract product image from an image tag", () => {
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
         const result = await extractProductImage(
+            productStub,
+            "non-existent-class"
+        );
+        // expect that the result is null
+        expect(result).to.equal(null);
+    });
+});
+
+describe("Extract inner text from a span tag", () => {
+    // Before we extract a tag's inner text we must create a fake Element Tag for the extractTagValue function to be tested
+    it("extracts inner text from span tag", async () => {
+        // Create a browser instance and go to a blank page
+        // We need a browser instance in order to create a real element tag
+        const browserInstance = await createBrowserInstance(true);
+        const page = await browserInstance.newPage();
+        await page.goto("about:blank");
+
+        // Creates a fake link element we can then use to extract details from
+        const fakeSpanTag = await page.evaluateHandle(() => {
+            const spanElement = document.createElement("span");
+            spanElement.className = "product-price";
+            spanElement.textContent =
+                "$5.99";
+            return spanElement;
+        });
+
+        // Creates a fake product that we can use to return our fake image element
+        const productStub = sinon.createStubInstance(ElementHandle<Element>);
+        // When the query function is called return our fake image element we return our fakeImageTag
+        productStub.$.returns(Promise.resolve(fakeSpanTag));
+        // extracts the url from the fakeImageTag
+        const fakeSpanInnerText = await extractTagValue(
+            productStub,
+            ".product-price"
+        );
+        // Close the browser instance as we have extracted the href from the productStub we provided.
+        await browserInstance.close();
+
+        // Expect the extracted url to contian our fake image url.
+        expect(fakeSpanInnerText).to.equal(
+            "$5.99"
+        );
+    });
+    it("fails to locate product returns null", async () => {
+        const productStub = sinon.createStubInstance(ElementHandle<Element>);
+        // Resolve the query function as null to simulate that we failed to find a product tag
+        productStub.$.returns(Promise.resolve(null));
+        // Call the product URL extractor with our fake stub
+        const result = await extractTagValue(
             productStub,
             "non-existent-class"
         );

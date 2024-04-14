@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
+import { wholeFoodsScraper } from "@store-scrapers/WholeFoodsScraper";
 import { fail } from "assert";
 import * as dotenv from "dotenv";
 
 dotenv.config();
-describe("Test Fred Meyer scraper", async () => {
-    it("scrapes all urls for Fred Meyer, returns 2D array with scraped products (of type ProductInfo), all object valus are strings", async () => {
-        // Runs the Fred Meyer Scraper and stores the scraped products in a 2D array
-        const scrapeResutlts = await fredMeyerScraper();
+describe("Test Whole Foods scraper", async () => {
+    it("scrapes all urls for Whole Foods, returns 2D array with scraped products (of type ProductInfo), all object valus are strings", async () => {
+        // Runs the Whole Foods Scraper and stores the scraped products in a 2D array
+        const scrapeResutlts = await wholeFoodsScraper();
         expect(scrapeResutlts).to.be.instanceOf(Array);
         expect(scrapeResutlts).to.not.be.empty;
 
