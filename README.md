@@ -1,5 +1,6 @@
 # Web scraper
 This repo is for building the web scraper we will need to use for PricePinion.
+![Web Scraping](https://github.com/PricePinion/Webscraper/actions/workflows/unit_tests.yml/badge.svg)
 ## Development Instructions
 ### Getting the packages.
 Just like any JavaScript/Typescript project we need to install all the packages.
