@@ -59,19 +59,23 @@ const scrapeSite = async (
                     // Check if the Load More Results button exists, throws an error if it doesn't exist
                     // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
                     // for the load previous results button too.
-                    loadMoreResultsExists = await page.$eval(
-                        ".mt-32 > .LoadMore__load-more-button",
-                        (button) => button !== null
-                    );
-                    // If the above didn't throw an error, then the button exists and we click it.
-                    await page.click(".mt-32 > .LoadMore__load-more-button");
+                    await page
+                        .$eval(
+                            ".mt-32 > .LoadMore__load-more-button",
+                            (button) => button !== null
+                        )
+                        .then(async () => {
+                            // If the above didn't throw an error, then the button exists and we click it.
+                            await page.click(
+                                ".mt-32 > .LoadMore__load-more-button"
+                            );
+                        });
                 });
             } catch (error) {
                 // If we are here then the Load More Results button no longer exists
                 loadMoreResultsExists = false;
             }
         }
-
         // Once all the products have been loaded we can start scraping.
         // Due to how Fred Meyer loads elements the website might lag before rendering the final products.
         // To Fix this we sleep for SCRAPE_DELAY seconds (5 seconds if env is not defined) and then scrape the products.
@@ -80,8 +84,6 @@ const scrapeSite = async (
         ).then(async () => {
             // Scrape all of the products in the product grid container
             const scrapedProducts = await scrapePage(productGridContainer);
-            // Once scraping has finished close the page.
-            await page.close();
             // return the array of scraped products
             return scrapedProducts;
         });
