@@ -35,7 +35,7 @@ const scrapeSite = async (
     // Open a new blank page
     const page = await browser.newPage();
 
-    // Navigate to the target page
+    // Navigate to the target page and disable timeouts (used for our CI/CD pipeline)
     await page.goto(url, { timeout: 0 });
 
     // We wait for the w-pie--products-grid class to load (this is the grid of products).
@@ -55,49 +55,61 @@ const scrapeSite = async (
     // to avoid messing up the scraping job we attempt to look for it and close it.
     try {
         // Attempt to close the location prompt diaglogue box if it's unable to click close then it doesn't exist
-        await page.waitForSelector(
-            ".main-content > .modal  > .modal--overlay > .modal--container > .modal--close"
-        );
-        await page.click(
-            ".main-content > .modal  > .modal--overlay > .modal--container > .modal--close"
-        );
+        // Wait for the close button to appear and then close it
+        await page
+            .waitForSelector(
+                ".main-content > .modal  > .modal--overlay > .modal--container > .modal--close"
+            )
+            .then(async () => {
+                await page.click(
+                    ".main-content > .modal  > .modal--overlay > .modal--container > .modal--close"
+                );
+            });
     } catch (error) {
         // If we are here the location prompt didn't load so we continue anyways
         logger.debug("Location prompt did not load, continuing anyways!");
     }
 
     // Whole Foods will not list prices unless it has a store location, even though they are the same across all stores
-    // Target the search box and type in a zipcode for the location
-    await sleepBeforeOperation(
-        parseInt(<string>process.env.CLICK_DELAY) || 500
-    ).then(async () => {
-        await page.type(
-            ".wfm-search-bar__wrapper > .wfm-search-bar--input",
-            "98122",
-            { delay: 300 }
-        );
-    });
+    // Wait for zip code box to appear then enter a zip code, delay key presses by 300 ms (allows time for stores to be displayed)
+    await page
+        .waitForSelector(".wfm-search-bar__wrapper > .wfm-search-bar--input")
+        .then(async () => {
+            await page.type(
+                ".wfm-search-bar__wrapper > .wfm-search-bar--input",
+                "98122",
+                { delay: 300 }
+            );
+        });
+
     // Click on the first store that appears, this does not matter for us as it's only used
     // for in-store pick up and we must provide this to get prices.
-    await sleepBeforeOperation(
-        parseInt(<string>process.env.CLICK_DELAY) || 500
-    ).then(async () => {
-        try {
-            // Wait for the stores to appear
-            await page.waitForSelector(".wfm-search-bar--list_item");
-        } catch (error) {
-            logger.error(
-                `Failed to find list of stores, Aborting scrape for ${url}`
-            );
-            return null;
-        }
-        // Collect the list elements that appeared
-        const storeList = await page.$$(".wfm-search-bar--list_item");
+    try {
+        // Wait for the stores to appear
+        await page.waitForSelector(".wfm-search-bar--list_item");
+    } catch (error) {
+        logger.error(
+            `Failed to find list of stores, Aborting scrape for ${url}`
+        );
+        return null;
+    }
+
+    // Collect the list elements that appeared
+    const storeList = await page.$$(".wfm-search-bar--list_item");
+    try {
+        // Click on the first store that appears in the search results
         storeList[0].click();
-    });
+    } catch (error) {
+        // If we are here we failed to click on a store
+        logger.error(`Failed to set store for ${url}, Aborting scrape job!`);
+        return null;
+    }
 
     // Sleep for 1s as the page is currently refreshing
-    await sleepBeforeOperation(1000);
+    // Cleanest way possible as we can't wait for refresh or wait for a selector to appear
+    await sleepBeforeOperation(
+        parseInt(<string>process.env.WF_REFRESH) || 1000
+    );
 
     // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
     if (scrapeRecursively) {
@@ -111,14 +123,17 @@ const scrapeSite = async (
                     parseInt(<string>process.env.SCRAPE_DELAY) || 3000
                 ).then(async () => {
                     // Check if the Load More button exists, throws an error if it doesn't exist
-                    loadMoreResultsExists = await page.$eval(
-                        ".w-pie--body-content > .w-button--load-more",
-                        (button) => button !== null
-                    );
-                    // If the above didn't throw an error, then the button exists and we click it.
-                    await page.click(
-                        ".w-pie--body-content > .w-button--load-more"
-                    );
+                    await page
+                        .$eval(
+                            ".w-pie--body-content > .w-button--load-more",
+                            (button) => button !== null
+                        )
+                        .then(async () => {
+                            // If the above didn't throw an error, then the button exists and we click it.
+                            await page.click(
+                                ".w-pie--body-content > .w-button--load-more"
+                            );
+                        });
                 });
             } catch (error) {
                 // If we are here then the Load More Results button no longer exists
@@ -127,8 +142,6 @@ const scrapeSite = async (
         }
         // Scrape all of the products in the product grid container
         const scrapedProducts = await scrapePage(productGridContainer);
-        // Once scraping has finished close the page.
-        await page.close();
         // return the array of scraped products
         return scrapedProducts;
     } else {
