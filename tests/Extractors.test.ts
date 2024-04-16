@@ -2,9 +2,10 @@ import { expect } from "chai";
 import { describe, it } from "mocha";
 import {
     extractFromAria,
+    extractFromValue,
     extractProductImage,
     extractProductURL,
-    extractTagValue,
+    extractTextContent,
 } from "@scraper-extractors";
 import { ElementHandle } from "puppeteer";
 import { createBrowserInstance } from "@create-browser-instance";
@@ -165,7 +166,7 @@ describe("Extract inner text from a span tag", () => {
         // When the query function is called return our fake image element we return our fakeImageTag
         productStub.$.returns(Promise.resolve(fakeSpanTag));
         // extracts the url from the fakeImageTag
-        const fakeSpanInnerText = await extractTagValue(
+        const fakeSpanInnerText = await extractTextContent(
             productStub,
             ".product-price"
         );
@@ -180,7 +181,49 @@ describe("Extract inner text from a span tag", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractTagValue(productStub, "non-existent-class");
+        const result = await extractTextContent(
+            productStub,
+            "non-existent-class"
+        );
+        // expect that the result is null
+        expect(result).to.equal(null);
+    });
+});
+
+describe("Extract product price from a value attribute", () => {
+    // Before we extract a product value attribute we must create a fake data Tag for the extractFromValue function to be tested
+    it("extracts product price from a value attribute", async () => {
+        const browserInstance = await createBrowserInstance(true);
+        const page = await browserInstance.newPage();
+        await page.goto("about:blank");
+        // Creates a fake data element we can then use to extract details from
+        const fakeDataTag = await page.evaluateHandle(() => {
+            const dataElement = document.createElement("data");
+            dataElement.className = "kds-price";
+            dataElement.value = "5.99";
+            return dataElement;
+        });
+        // Creates a fake product that we can use to return our fake data element
+        const productStub = sinon.createStubInstance(ElementHandle<Element>);
+        // When the query function is called return our fake data element
+        productStub.$.returns(Promise.resolve(fakeDataTag));
+        // Extracts the value attribute from the data element
+        const fakeDataTagValue = await extractFromValue(
+            productStub,
+            ".kds-price"
+        );
+        // Close the browser instance as we have extracted the value attribute from the productStub we provided.
+        await browserInstance.close();
+        // Expect the extracted value attribute to contian our fake product price.
+        expect(fakeDataTagValue).to.equal("5.99");
+    });
+    it("fails to locate product returns null", async () => {
+        // Creates a fake product that we can use to return our fake link element
+        const productStub = sinon.createStubInstance(ElementHandle<Element>);
+        // Resolve the query function as null to simulate that we failed to find a product tag
+        productStub.$.returns(Promise.resolve(null));
+        // Call the product URL extractor with our fake stub
+        const result = await extractFromValue(productStub, "non-existent-class");
         // expect that the result is null
         expect(result).to.equal(null);
     });

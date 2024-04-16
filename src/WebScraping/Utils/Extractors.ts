@@ -3,7 +3,6 @@
  * Consits of Product Image, Product link extractor, and AriaLabel extractors.
  */
 import { ElementHandle } from "puppeteer";
-
 /**
  * This function is responsible for extracting the product image
  * @param product This is the individual product cell
@@ -21,7 +20,6 @@ export const extractProductImage = async (
         return null;
     }
 };
-
 /**
  * This function is responsible for extracting the current product's URL.
  * @param product This is the individual product cell
@@ -43,7 +41,6 @@ export const extractProductURL = async (
         return null;
     }
 };
-
 /**
  * This function is resonsible for extracting information from a Tag's AriaLabel.
  * AriaLabel's contain product names and prices on Kroger sites so we can reuse this function for both.
@@ -62,16 +59,15 @@ export const extractFromAria = async (
         return null;
     }
 };
-
 /**
- * This function is resonsible for extracting information from a Tag's value (a.k.a the part between the open tag and closed tag).
+ * This function is resonsible for extracting information from a Tag's text content (a.k.a the part between the open tag and closed tag).
  * For some sites prices and product names are shown between tag's. The reason we can't do this for Kroger is they shove other tags into it
  * which causes issues with extacting information.
  * @param product This is the individual product cell
  * @param classStructure This is the class structure of the element we wish to extract.
- * @returns The tag value from an element. Returns null if the element wasn't found
+ * @returns The text conent from an element. Returns null if the element wasn't found
  */
-export const extractTagValue = async (
+export const extractTextContent = async (
     product: ElementHandle,
     classStructure: string
 ) => {
@@ -82,14 +78,22 @@ export const extractTagValue = async (
         return null;
     }
 };
-
-export const extractPrice = async (
+/**
+ * This function is resonsible for extracting information from a tag's data attribute.
+ * For some sites prices and product names are stored in the data attribute.
+ * @param product This is the individual product cell
+ * @param classStructure This is the class structure of the element we wish to extract.
+ * @returns The tag value from an element. Returns null if the element wasn't found
+ */
+export const extractFromValue = async (
     product: ElementHandle,
     classStructure: string
 ) => {
     const productElement = await product.$(classStructure);
     if (productElement) {
-        return productElement.evaluate((element) => element.tagName);
+        return productElement.evaluate((element) =>
+            element.getAttribute("value")
+        );
     } else {
         return null;
     }

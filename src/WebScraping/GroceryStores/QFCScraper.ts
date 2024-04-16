@@ -9,6 +9,7 @@ import {
     extractProductImage,
     extractProductURL,
     extractFromAria,
+    extractFromValue,
 } from "@scraper-extractors";
 
 /**
@@ -117,7 +118,7 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
 
         // Extract the current product price using the current product cell and the class structure
         // The class structure here is just class=kds-Price--alternate this is only used for the product price.
-        const productPrice = await extractFromAria(
+        const productPrice = await extractFromValue(
             product,
             ".kds-Price--alternate"
         );
@@ -167,7 +168,7 @@ export const qfcScraper = async () => {
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for QFC
     const result = await scrapeMultipleURLs(urls, false, scrapeSite);
-
+    logger.info("Finished QFC Scraping Job");
     // Return the result of our product scraping.
     return result;
 };
