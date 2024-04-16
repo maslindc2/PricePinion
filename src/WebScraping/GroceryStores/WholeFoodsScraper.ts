@@ -7,7 +7,7 @@ import { logger } from "@logger";
 import {
     extractProductImage,
     extractProductURL,
-    extractTagValue,
+    extractTextContent,
 } from "@scraper-extractors";
 import {
     ProductInfo,
@@ -45,9 +45,6 @@ const scrapeSite = async (
 
     // If the product grid container is undefined then we failed to find the product grid
     if (!productGridContainer) {
-        logger.error(
-            `Failed to locate w-pie--products-grid element! Aborting scrape job for ${url}`
-        );
         return null;
     }
 
@@ -82,17 +79,8 @@ const scrapeSite = async (
             );
         });
 
-    // Click on the first store that appears, this does not matter for us as it's only used
-    // for in-store pick up and we must provide this to get prices.
-    try {
-        // Wait for the stores to appear
-        await page.waitForSelector(".wfm-search-bar--list_item");
-    } catch (error) {
-        logger.error(
-            `Failed to find list of stores, Aborting scrape for ${url}`
-        );
-        return null;
-    }
+    // Wait for the store results to appear, throws if it can't find the results, it's caught by ScraperUtils
+    await page.waitForSelector(".wfm-search-bar--list_item");
 
     // Collect the list elements that appeared
     const storeList = await page.$$(".wfm-search-bar--list_item");
@@ -178,20 +166,20 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
             ".w-pie--product-tile > .w-pie--product-tile__link"
         );
         // Extract the current product's name using the current product and the below class structure.
-        const productName = await extractTagValue(
+        const productName = await extractTextContent(
             product,
             ".w-pie--product-tile > .w-pie--product-tile__link > .w-pie--product-tile__content > .w-cms--font-body__sans-bold"
         );
         // Whole Foods shows prices in two ways either on sale or normal
         let productPrice;
         // If the product is on sale it uses the below class structure
-        productPrice = await extractTagValue(
+        productPrice = await extractTextContent(
             product,
             ".bds--heading-5 > .bds--heading-5"
         );
         // If the product price is NOT on sale, it uses the below class structure
         if (productPrice === null) {
-            productPrice = await extractTagValue(
+            productPrice = await extractTextContent(
                 product,
                 ".w-pie--product-tile__content > .bds--heading-5"
             );
@@ -235,7 +223,7 @@ export const wholeFoodsScraper = async () => {
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for Whole Foods
     const result = await scrapeMultipleURLs(urls, false, scrapeSite);
-
+    logger.info("Finished Whole Foods Scraping Job");
     // Return the result of our product scraping.
     return result;
 };

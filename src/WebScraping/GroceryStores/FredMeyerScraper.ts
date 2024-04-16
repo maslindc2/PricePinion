@@ -14,6 +14,7 @@ import {
     extractProductImage,
     extractProductURL,
     extractFromAria,
+    extractFromValue,
 } from "@scraper-extractors";
 
 /**
@@ -39,7 +40,6 @@ const scrapeSite = async (
 
     // If the product grid container is undefined then we failed to find a div with the class AutoGrid
     if (!productGridContainer) {
-        logger.error("Failed to locate .AutoGrid element!");
         return null;
     }
     // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
@@ -124,7 +124,7 @@ const scrapePage = async (productGridContainer: ElementHandle<Element>) => {
 
         // Extract the current product price using the current product cell and the class structure
         // The class structure here is just class=kds-Price--alternate this is only used for the product price.
-        const productPrice = await extractFromAria(
+        const productPrice = await extractFromValue(
             product,
             ".kds-Price--alternate"
         );
@@ -175,7 +175,7 @@ export const fredMeyerScraper = async () => {
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for Fred Meyer
     const result = await scrapeMultipleURLs(urls, false, scrapeSite);
-
+    logger.info("Finished Fred Meyer Scraping Job");
     // Return the result of our product scraping.
     return result;
 };

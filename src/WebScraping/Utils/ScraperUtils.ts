@@ -54,6 +54,8 @@ export const scrapeMultipleURLs = async (
 ) => {
     // Map all of the URLS to an array of promises
     const scrapePromises = urls.map(async (url) => {
+        // Try to create a browser instance and store it to the variable
+        let browserInstance;
         try {
             // The env variable HEADLESS sets if puppeteer should run headless (no chrome windows opening) or
             // headful (chrome windows opening and visible to the developer).
@@ -65,10 +67,19 @@ export const scrapeMultipleURLs = async (
             } else {
                 runHeadless = true;
             }
-
             // Creates a browser instance before we scrape the site.
             // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-            const browserInstance = await createBrowserInstance(runHeadless);
+            browserInstance = await createBrowserInstance(runHeadless);
+        } catch (error) {
+            // Log that the browser instance failed to create for the current url and why it failed to create
+            logger.error(
+                `Failed to create browser instance for: ${url} Resulted in Error: `,
+                error
+            );
+            return null;
+        }
+        // If we made it here then we have a browserInstance and we are ready to scrape the current url
+        try {
             // Run scrape site with the current URL and store the scraped products
             const scrapedProducts = await scrapeSite(
                 url,
@@ -80,7 +91,11 @@ export const scrapeMultipleURLs = async (
             // Return the scraped products
             return scrapedProducts;
         } catch (error) {
+            // Log the url that failed to scrape and the error message
             logger.error(`Error scraping ${url}:`, error);
+            // Close the browser instance that failed
+            await browserInstance.close();
+            // Return null for the result
             return null;
         }
     });
