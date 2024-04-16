@@ -45,9 +45,6 @@ const scrapeSite = async (
 
     // If the product grid container is undefined then we failed to find the product grid
     if (!productGridContainer) {
-        logger.error(
-            `Failed to locate w-pie--products-grid element! Aborting scrape job for ${url}`
-        );
         return null;
     }
 
@@ -82,18 +79,9 @@ const scrapeSite = async (
             );
         });
 
-    // Click on the first store that appears, this does not matter for us as it's only used
-    // for in-store pick up and we must provide this to get prices.
-    try {
-        // Wait for the stores to appear
-        await page.waitForSelector(".wfm-search-bar--list_item");
-    } catch (error) {
-        logger.error(
-            `Failed to find list of stores, Aborting scrape for ${url}`
-        );
-        return null;
-    }
-
+    // Wait for the store results to appear, throws if it can't find the results, it's caught by ScraperUtils
+    await page.waitForSelector(".wfm-search-bar--list_item");
+    
     // Collect the list elements that appeared
     const storeList = await page.$$(".wfm-search-bar--list_item");
     try {

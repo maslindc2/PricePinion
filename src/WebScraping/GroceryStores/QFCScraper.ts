@@ -34,7 +34,6 @@ const scrapeSite = async (
 
     // If the product grid container is undefined then we failed to find a div with the class AutoGrid
     if (!productGridContainer) {
-        logger.error("Failed to locate .AutoGrid element!");
         return null;
     }
     // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
