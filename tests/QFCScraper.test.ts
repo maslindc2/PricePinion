@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test QFC scraper", async () => {
-    it("scrapes all urls for QFC, returns an object array with scraped products, all object valus are strings", async () => {
+    it("scrapes all urls for QFC, returns an object with scraped products, all object valus are strings", async () => {
         // Runs the QFC Scraper and stores the scraped products
         const scrapeResults = await qfcScraper();
         expect(scrapeResults).to.be.instanceOf(Object);
@@ -20,10 +20,10 @@ describe("Test QFC scraper", async () => {
             // Ensure that each object in the array has a type string,
             // If the scraper failed each entry would be null.
             for (const product of scrapeResults[department]) {
-                expect(product.name).to.be.a("string");
-                expect(product.price).to.be.a("string");
-                expect(product.url).to.be.a("string");
-                expect(product.image).to.be.a("string");
+                expect(product.name).to.be.string;
+                expect(product.price).to.be.string;
+                expect(product.url).to.be.string;
+                expect(product.image).to.be.string;
             }
         }
     });
