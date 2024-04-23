@@ -156,18 +156,19 @@ export const qfcScraper = async () => {
     logger.info("Running QFC Scraping Job");
 
     // Here we are defining the array of urls that we are going to scrape.
-    const urls = [
-        "https://www.qfc.com/pl/meat-seafood/18004",
-        "https://www.qfc.com/pl/fresh-vegetables/06112",
-        "https://www.qfc.com/pl/milk-plant-based-%20milk/02001",
-        "https://www.qfc.com/pl/cheese/02002",
-        "https://www.qfc.com/pl/butter-margarine/02004",
-        "https://www.qfc.com/pl/eggs-egg-substitutes/02003",
-    ];
+    const departmentURLs = {
+        meat: "https://www.qfc.com/pl/meat-seafood/18004",
+        produce:
+            "https://www.qfc.com/pl/fresh-fruits-vegetables/06?taxonomyId=06&fulfillment=all",
+        milk: "https://www.qfc.com/pl/milk-plant-based-%20milk/02001",
+        cheese: "https://www.qfc.com/pl/cheese/02002",
+        butter: "https://www.qfc.com/pl/butter-margarine/02004",
+        eggs: "https://www.qfc.com/pl/eggs-egg-substitutes/02003",
+    };
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for QFC
-    const result = await scrapeMultipleURLs(urls, false, scrapeSite);
+    const result = await scrapeMultipleURLs(departmentURLs, false, scrapeSite);
     logger.info("Finished QFC Scraping Job");
     // Return the result of our product scraping.
     return result;

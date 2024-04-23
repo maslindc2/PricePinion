@@ -1,31 +1,29 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
 import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
-import { fail } from "assert";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test Fred Meyer scraper", async () => {
-    it("scrapes all urls for Fred Meyer, returns 2D array with scraped products (of type ProductInfo), all object valus are strings", async () => {
-        // Runs the Fred Meyer Scraper and stores the scraped products in a 2D array
-        const scrapeResutlts = await fredMeyerScraper();
-        expect(scrapeResutlts).to.be.instanceOf(Array);
-        expect(scrapeResutlts).to.not.be.empty;
+    it("scrapes all urls for Fred Meyer, returns an object array with scraped products, all object valus are strings", async () => {
+        // Runs the Fred Meyer Scraper and stores the scraped products
+        const scrapeResults = await fredMeyerScraper();
+        expect(scrapeResults).to.be.instanceOf(Object);
+        // Expect the scrape results to contain entries for the departments
+        expect(Object.keys(scrapeResults)).to.not.be.empty;
 
-        // Ensure that each index of scrape results is of type ProductInfo
-        for (const scrapeResult of scrapeResutlts) {
-            if (scrapeResult) {
-                // If the scrape result is defined then we
-                // check each product key in the scrape result is of type string.
-                // If it's null then it failed to extract information from the product
-                for (const product of scrapeResult) {
-                    expect(product.name).to.be.string;
-                    expect(product.price).to.be.string;
-                    expect(product.url).to.be.string;
-                    expect(product.image).to.be.string;
-                }
-            } else {
-                fail("Scrape Result for a url result is null!");
+        // Iterate through each entry in the object
+        for (const department of Object.keys(scrapeResults)) {
+            // Expect each department to contain data
+            expect(scrapeResults[department]).to.not.be.empty;
+
+            // Ensure that each object in the array has a type string,
+            // If the scraper failed each entry would be null.
+            for (const product of scrapeResults[department]) {
+                expect(product.name).to.be.a("string");
+                expect(product.price).to.be.a("string");
+                expect(product.url).to.be.a("string");
+                expect(product.image).to.be.a("string");
             }
         }
     });

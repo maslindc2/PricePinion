@@ -34,6 +34,7 @@
         "baseUrl": "./" /* Specify the base directory to resolve non-relative module names. */,
         "paths": {
             "@logger": ["./src/utils/WinstonLogger.ts"],
+            "@morgan": ["./src/utils/Morgan.ts"],
             "@store-scrapers/*": ["./src/WebScraping/GroceryStores/*"],
             "@scraper-utils": ["./src/WebScraping/Utils/ScraperUtils.ts"],
             "@scraper-extractors": ["./src/WebScraping/Utils/Extractors.ts"],

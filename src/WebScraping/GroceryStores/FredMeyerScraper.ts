@@ -162,14 +162,15 @@ export const fredMeyerScraper = async () => {
     logger.info("Running Fred Meyer Scraping Job");
 
     // Here we are defining the array of urls that we are going to scrape.
-    const urls = [
-        "https://www.fredmeyer.com/pl/meat-seafood/18004",
-        "https://www.fredmeyer.com/pl/fresh-vegetables/06112",
-        "https://www.fredmeyer.com/pl/milk-plant-based-%20milk/02001",
-        "https://www.fredmeyer.com/pl/cheese/02002",
-        "https://www.fredmeyer.com/pl/butter-margarine/02004",
-        "https://www.fredmeyer.com/pl/eggs-egg-substitutes/02003",
-    ];
+    const urls = {
+        meat: "https://www.fredmeyer.com/pl/meat-seafood/18004",
+        produce:
+            "https://www.fredmeyer.com/pl/fresh-fruits-vegetables/06?taxonomyId=06&fulfillment=all",
+        milk: "https://www.fredmeyer.com/pl/milk-plant-based-%20milk/02001",
+        cheese: "https://www.fredmeyer.com/pl/cheese/02002",
+        butter: "https://www.fredmeyer.com/pl/butter-margarine/02004",
+        eggs: "https://www.fredmeyer.com/pl/eggs-egg-substitutes/02003",
+    };
 
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
