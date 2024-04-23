@@ -223,7 +223,10 @@ describe("Extract product price from a value attribute", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractFromValue(productStub, "non-existent-class");
+        const result = await extractFromValue(
+            productStub,
+            "non-existent-class"
+        );
         // expect that the result is null
         expect(result).to.equal(null);
     });

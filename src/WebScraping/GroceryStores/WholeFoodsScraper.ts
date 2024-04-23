@@ -209,20 +209,20 @@ export const wholeFoodsScraper = async () => {
     logger.info("Running Whole Foods Scraping Job");
 
     // Here we are defining the array of urls that we are going to scrape.
-    const urls = [
-        "https://www.wholefoodsmarket.com/products/meat",
-        "https://www.wholefoodsmarket.com/products/seafood",
-        "https://www.wholefoodsmarket.com/products/produce",
-        "https://www.wholefoodsmarket.com/products/dairy-eggs/milk-cream",
-        "https://www.wholefoodsmarket.com/products/dairy-eggs/cheese",
-        "https://www.wholefoodsmarket.com/products/dairy-eggs/butter-margarine",
-        "https://www.wholefoodsmarket.com/products/dairy-eggs/eggs",
-    ];
+    const departmentURLs = {
+        meat: "https://www.wholefoodsmarket.com/products/meat",
+        produce: "https://www.wholefoodsmarket.com/products/produce",
+        milk: "https://www.wholefoodsmarket.com/products/dairy-eggs/milk-cream",
+        cheese: "https://www.wholefoodsmarket.com/products/dairy-eggs/cheese",
+        butter: "https://www.wholefoodsmarket.com/products/dairy-eggs/butter-margarine",
+        eggs: "https://www.wholefoodsmarket.com/products/dairy-eggs/eggs",
+    };
 
     // Here we will scrape multiple URLs concurrently.
     // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
     // Third parameter is the scrape site function built specifically for Whole Foods
-    const result = await scrapeMultipleURLs(urls, false, scrapeSite);
+    const result = await scrapeMultipleURLs(departmentURLs, false, scrapeSite);
+
     logger.info("Finished Whole Foods Scraping Job");
     // Return the result of our product scraping.
     return result;

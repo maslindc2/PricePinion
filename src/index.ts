@@ -4,14 +4,14 @@
  * For now we are just calling the main webscraper controller.
  */
 // Importing the web scraper controller from our webscraping directory
-//import { webScraperController } from "./WebScraping/WebScraperController";
+import { webScraperController } from "./WebScraping/WebScraperController";
 import express from "express";
 import * as dotenv from "dotenv";
 import { logger } from "@logger";
 dotenv.config();
 
 // Calling the web scraper controller
-//webScraperController();
+webScraperController();
 
 // Defining our app using express
 const app = express();
@@ -23,7 +23,6 @@ const port = parseInt(<string>process.env.PORT) | 8080;
 // Express bundles include bodyParser by default no longer needed as a separate library
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 
 // Listen for requests and log current status for the server
 app.listen(port, () => {
