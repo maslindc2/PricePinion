@@ -12,7 +12,7 @@ class WebScraperController {
     public fmScraperObj: FredMeyerScraper;
     public qfcScraperObj: QFCScraper;
     public wfScraperObj: WholeFoodsScraper;
-    constructor(){
+    constructor() {
         this.fmScraperObj = new FredMeyerScraper();
         this.qfcScraperObj = new QFCScraper();
         this.wfScraperObj = new WholeFoodsScraper();
@@ -24,9 +24,11 @@ class WebScraperController {
         logger.debug("Reached WebScraper Controller");
 
         // Runs Fred Meyer's Scraper and stores the results as an object
-        const fredMeyerScrapeResult: Object = await this.fmScraperObj.fredMeyerScraper();
+        const fredMeyerScrapeResult: Object =
+            await this.fmScraperObj.fredMeyerScraper();
         const qfcScrapeResult: Object = await this.qfcScraperObj.qfcScraper();
-        const wholeFoodsScrapeResult: Object = await this.wfScraperObj.wholeFoodsScraper();
+        const wholeFoodsScrapeResult: Object =
+            await this.wfScraperObj.wholeFoodsScraper();
 
         const scrapeResults = {
             FredMeyer: fredMeyerScrapeResult,
@@ -41,7 +43,7 @@ class WebScraperController {
      * This function will be removed!
      * @param scrapeResults Object containing results from the 3 scrapers
      */
-    public resultToJSON(scrapeResults): void {
+    public resultToJSON(scrapeResults: any): void {
         // Once we have the data stringify it for exporting to a json file
         const fmAsJson = JSON.stringify(scrapeResults.FredMeyer);
         const qfcAsJson = JSON.stringify(scrapeResults.QFC);
@@ -51,6 +53,7 @@ class WebScraperController {
         if (!fs.existsSync("ScrapeResults")) {
             fs.mkdirSync("ScrapeResults");
         }
+
         // Write the results from FredMeyer to a json
         fs.writeFileSync(
             "ScrapeResults/FredMeyer_Scrape_Results.json",
@@ -59,11 +62,12 @@ class WebScraperController {
                 flag: "w",
             }
         );
-        // Write the results from FredMeyer to a json
+        // Write the results from QFC to a json
         fs.writeFileSync("ScrapeResults/QFC_Scrape_Results.json", qfcAsJson, {
             flag: "w",
         });
-        // Write the results from FredMeyer to a json
+
+        // Write the results from WholeFoods to a json
         fs.writeFileSync(
             "ScrapeResults/WholeFoods_Scrape_Results.json",
             wfAsJson,

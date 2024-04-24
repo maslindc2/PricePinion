@@ -7,10 +7,10 @@ import {
     extractFromValue,
 } from "@scraper-extractors";
 import { IProductInfo } from "src/interfaces/IProductInfo";
-import {ScraperUtils} from "@scraper-utils";
+import { ScraperUtils } from "@scraper-utils";
 
 class QFCScraper {
-    public scraperUtilObj:ScraperUtils
+    public scraperUtilObj: ScraperUtils;
     constructor() {
         this.scraperUtilObj = new ScraperUtils();
     }
@@ -22,7 +22,7 @@ class QFCScraper {
      * @param {boolean} scrapeRecursively scrapes all the pages of the provided url. If set to false: only the first page is scraped.
      * @returns The items that we have successfully scraped
      */
-    public async scrapeSite (
+    public async scrapeSite(
         url: string,
         browser: Browser,
         scrapeRecursively: boolean
@@ -42,7 +42,9 @@ class QFCScraper {
         }
         // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
         if (scrapeRecursively) {
-            logger.debug("Scraping Recursively Enabled! This might take a bit!");
+            logger.debug(
+                "Scraping Recursively Enabled! This might take a bit!"
+            );
             // This is variable used for checking if the Load More Results button exists
             let loadMoreResultsExists = true;
             // The below loop continues to load items on the page until the Load More Results button no longer exists.
@@ -50,24 +52,26 @@ class QFCScraper {
                 try {
                     // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
                     // This is tied to network speed. QFC response times are slow and sometimes they are fast.
-                    await this.scraperUtilObj.sleepBeforeOperation(
-                        parseInt(<string>process.env.CLICK_DELAY) || 500
-                    ).then(async () => {
-                        // Check if the Load More Results button exists, throws an error if it doesn't exist
-                        // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
-                        // for the load previous results button too.
-                        await page
-                            .$eval(
-                                ".mt-32 > .LoadMore__load-more-button",
-                                (button) => button !== null
-                            )
-                            .then(async () => {
-                                // If the above didn't throw an error, then the button exists and we click it.
-                                await page.click(
-                                    ".mt-32 > .LoadMore__load-more-button"
-                                );
-                            });
-                    });
+                    await this.scraperUtilObj
+                        .sleepBeforeOperation(
+                            parseInt(<string>process.env.CLICK_DELAY) || 500
+                        )
+                        .then(async () => {
+                            // Check if the Load More Results button exists, throws an error if it doesn't exist
+                            // We have to use the below class structure because they reuse the class "LoadMore__load-more-button"
+                            // for the load previous results button too.
+                            await page
+                                .$eval(
+                                    ".mt-32 > .LoadMore__load-more-button",
+                                    (button) => button !== null
+                                )
+                                .then(async () => {
+                                    // If the above didn't throw an error, then the button exists and we click it.
+                                    await page.click(
+                                        ".mt-32 > .LoadMore__load-more-button"
+                                    );
+                                });
+                        });
                 } catch (error) {
                     // If we are here then the Load More Results button no longer exists
                     loadMoreResultsExists = false;
@@ -77,14 +81,17 @@ class QFCScraper {
             // Once all the products have been loaded we can start scraping.
             // Due to how QFC loads elements the website might lag before rendering the final products.
             // To Fix this we sleep for SCRAPE_DELAY seconds (5 seconds if env is not defined) and then scrape the products.
-            const scrapedProducts = this.scraperUtilObj.sleepBeforeOperation(
-                parseInt(<string>process.env.SCRAPE_DELAY) || 3000
-            ).then(async () => {
-                // Scrape all of the products in the product grid container
-                const scrapedProducts = await this.scrapePage(productGridContainer);
-                // return the array of scraped products
-                return scrapedProducts;
-            });
+            const scrapedProducts = this.scraperUtilObj
+                .sleepBeforeOperation(
+                    parseInt(<string>process.env.SCRAPE_DELAY) || 3000
+                )
+                .then(async () => {
+                    // Scrape all of the products in the product grid container
+                    const scrapedProducts =
+                        await this.scrapePage(productGridContainer);
+                    // return the array of scraped products
+                    return scrapedProducts;
+                });
             // return the results from scraping the requested page
             return scrapedProducts;
         } else {
@@ -93,16 +100,17 @@ class QFCScraper {
             // return the results from scraping the requested page
             return pageData;
         }
-    };
+    }
 
     /**
      * This function is responsible for scraping the current webpage.
      * @param page This is the current page of the web browser
      * @returns Returns the product data we have extracted from the current page.
      */
-    public async scrapePage (productGridContainer: ElementHandle<Element>) {
+    public async scrapePage(productGridContainer: ElementHandle<Element>) {
         // Target all classes and child elements that have the following class structure
-        const productsGrid = await productGridContainer.$$(".AutoGrid-cell > *");
+        const productsGrid =
+            await productGridContainer.$$(".AutoGrid-cell > *");
         // Used for storing the current page as an array of products.
         const productData = [];
 
@@ -111,7 +119,10 @@ class QFCScraper {
             // Extract the current product name using the current product and the class structure
             // The class structure for product name always has the parent tag with a class="mb-4" and a child with class="kds-link"
             // Why not just target kds-link? This class is reused again throughout for other elements so we need to follow this structure.
-            const productName = await extractFromAria(product, ".mb-4 > .kds-Link");
+            const productName = await extractFromAria(
+                product,
+                ".mb-4 > .kds-Link"
+            );
 
             // Extract the current product image URL
             const productImage = await extractProductImage(
@@ -146,7 +157,7 @@ class QFCScraper {
             productData.push(productInfo);
         }
         return productData;
-    };
+    }
 
     /**
      * This is the QFC scraper function.
@@ -154,7 +165,7 @@ class QFCScraper {
      * where the scraping is done concurrently.
      * @returns the result from scraping QFC
      */
-    public async qfcScraper () {
+    public async qfcScraper() {
         // Printing that we are in this function
         logger.info("Running QFC Scraping Job");
 
@@ -171,10 +182,14 @@ class QFCScraper {
         // Here we will scrape multiple URLs concurrently.
         // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
         // Third parameter is the scrape site function built specifically for QFC
-        const result = await this.scraperUtilObj.scrapeMultipleURLs(departmentURLs, false, this.scrapeSite);
+        const result = await this.scraperUtilObj.scrapeMultipleURLs(
+            departmentURLs,
+            false,
+            this.scrapeSite.bind(this)
+        );
         logger.info("Finished QFC Scraping Job");
         // Return the result of our product scraping.
         return result;
-    };
+    }
 }
-export {QFCScraper};
+export { QFCScraper };

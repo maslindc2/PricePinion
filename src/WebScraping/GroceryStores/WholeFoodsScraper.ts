@@ -10,12 +10,11 @@ import {
     extractTextContent,
 } from "@scraper-extractors";
 import { IProductInfo } from "src/interfaces/IProductInfo";
-import {ScraperUtils} from "@scraper-utils";
+import { ScraperUtils } from "@scraper-utils";
 import { Browser, ElementHandle } from "puppeteer";
 
-class WholeFoodsScraper{
-    public scraperUtilObj:ScraperUtils
-    
+class WholeFoodsScraper {
+    public scraperUtilObj: ScraperUtils;
     constructor() {
         this.scraperUtilObj = new ScraperUtils();
     }
@@ -27,7 +26,7 @@ class WholeFoodsScraper{
      * @param {boolean} scrapeRecursively scrapes all the pages of the provided url. If set to false: only the first page is scraped.
      * @returns The items that we have successfully scraped
      */
-    public async scrapeSite (
+    public async scrapeSite(
         url: string,
         browser: Browser,
         scrapeRecursively: boolean
@@ -74,7 +73,9 @@ class WholeFoodsScraper{
         // Whole Foods will not list prices unless it has a store location, even though they are the same across all stores
         // Wait for zip code box to appear then enter a zip code, delay key presses by 300 ms (allows time for stores to be displayed)
         await page
-            .waitForSelector(".wfm-search-bar__wrapper > .wfm-search-bar--input")
+            .waitForSelector(
+                ".wfm-search-bar__wrapper > .wfm-search-bar--input"
+            )
             .then(async () => {
                 await page.type(
                     ".wfm-search-bar__wrapper > .wfm-search-bar--input",
@@ -93,7 +94,9 @@ class WholeFoodsScraper{
             storeList[0].click();
         } catch (error) {
             // If we are here we failed to click on a store
-            logger.error(`Failed to set store for ${url}, Aborting scrape job!`);
+            logger.error(
+                `Failed to set store for ${url}, Aborting scrape job!`
+            );
             return null;
         }
 
@@ -105,28 +108,32 @@ class WholeFoodsScraper{
 
         // If scrape recursively has been set i.e. we are loading all pages and then scraping the products.
         if (scrapeRecursively) {
-            logger.debug("Scraping Recursively Enabled! This might take a bit!");
+            logger.debug(
+                "Scraping Recursively Enabled! This might take a bit!"
+            );
             let loadMoreResultsExists = true;
             while (loadMoreResultsExists) {
                 try {
                     // Wait for SCRAPE_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
                     // This is tied to network speed so somtimes Whole Foods response times are slow sometimes they are fast.
-                    await this.scraperUtilObj.sleepBeforeOperation(
-                        parseInt(<string>process.env.SCRAPE_DELAY) || 3000
-                    ).then(async () => {
-                        // Check if the Load More button exists, throws an error if it doesn't exist
-                        await page
-                            .$eval(
-                                ".w-pie--body-content > .w-button--load-more",
-                                (button) => button !== null
-                            )
-                            .then(async () => {
-                                // If the above didn't throw an error, then the button exists and we click it.
-                                await page.click(
-                                    ".w-pie--body-content > .w-button--load-more"
-                                );
-                            });
-                    });
+                    await this.scraperUtilObj
+                        .sleepBeforeOperation(
+                            parseInt(<string>process.env.SCRAPE_DELAY) || 3000
+                        )
+                        .then(async () => {
+                            // Check if the Load More button exists, throws an error if it doesn't exist
+                            await page
+                                .$eval(
+                                    ".w-pie--body-content > .w-button--load-more",
+                                    (button) => button !== null
+                                )
+                                .then(async () => {
+                                    // If the above didn't throw an error, then the button exists and we click it.
+                                    await page.click(
+                                        ".w-pie--body-content > .w-button--load-more"
+                                    );
+                                });
+                        });
                 } catch (error) {
                     // If we are here then the Load More Results button no longer exists
                     loadMoreResultsExists = false;
@@ -142,13 +149,13 @@ class WholeFoodsScraper{
             // return the results from scraping the requested page
             return pageData;
         }
-    };
+    }
     /**
      * This function is responsible for scraping the current webpage.
      * @param page This is the current page of the web browser
      * @returns Returns the product data we have extracted from the current page.
      */
-    public async scrapePage (productGridContainer: ElementHandle<Element>) {
+    public async scrapePage(productGridContainer: ElementHandle<Element>) {
         // Target all classes and child elements that have the following class structure
         const productsGrid = await productGridContainer.$$(
             ".w-pie--products-grid > *"
@@ -200,7 +207,7 @@ class WholeFoodsScraper{
             productData.push(productInfo);
         }
         return productData;
-    };
+    }
 
     /**
      * This is the Whole Foods scraper function.
@@ -225,11 +232,15 @@ class WholeFoodsScraper{
         // Here we will scrape multiple URLs concurrently.
         // NOTE: If scrapeRecursively (second parameter) is set to true, this will scrape all pages of the url. False only scrapes the first page.
         // Third parameter is the scrape site function built specifically for Whole Foods
-        const result = await this.scraperUtilObj.scrapeMultipleURLs(departmentURLs, false, this.scrapeSite);
+        const result = await this.scraperUtilObj.scrapeMultipleURLs(
+            departmentURLs,
+            false,
+            this.scrapeSite.bind(this)
+        );
 
         logger.info("Finished Whole Foods Scraping Job");
         // Return the result of our product scraping.
         return result;
-    };
+    }
 }
-export {WholeFoodsScraper}
+export { WholeFoodsScraper };

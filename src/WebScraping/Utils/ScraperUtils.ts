@@ -27,7 +27,7 @@ class ScraperUtils {
      */
     public sleepBeforeOperation(ms: number) {
         return new Promise((resolve) => setTimeout(resolve, ms));
-    };
+    }
 
     /**
      * The below function is responsible for scraping multiple sites at a time.
@@ -37,11 +37,11 @@ class ScraperUtils {
      * @param scrapeSite each site has it's own scrape site function that must be passed to the scrapeMultipleURLs function.
      * @returns The scraped product results from the promises.
      */
-    public async scrapeMultipleURLs (
+    public async scrapeMultipleURLs(
         departmentURLs: Record<string, string>,
         scrapeRecursively: boolean,
         scrapeSite: ScrapeSite
-    ): Promise<Object>{
+    ): Promise<Object> {
         // Map all of the URLS to an array of promises
         const scrapePromises = Object.entries(departmentURLs).map(
             async ([department, url]) => {
@@ -95,5 +95,5 @@ class ScraperUtils {
         const resultsArray = await Promise.all(scrapePromises);
         return Object.fromEntries(resultsArray);
     }
-};
-export {ScraperUtils}
+}
+export { ScraperUtils };
