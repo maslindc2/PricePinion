@@ -17,10 +17,24 @@ export const webScraperController = async () => {
     const qfcScrapeResult = await qfcScraper();
     const wholeFoodsScrapeResult = await wholeFoodsScraper();
 
+    const scrapeResults = {
+        FredMeyer: fredMeyerScrapeResult,
+        QFC: qfcScrapeResult,
+        WholeFoods: wholeFoodsScrapeResult
+    }
+    // If you want to output the result to JSON
+    // Enable this function
+    outputResultToJSON(scrapeResults);
+
+    // If you want to write the results to the DB
+
+};
+
+const outputResultToJSON =  (scrapeResults: { FredMeyer: any; QFC: any; WholeFoods: any; }) => {
     // Once we have the data stringify it for exporting to a json file
-    const fmAsJson = JSON.stringify(fredMeyerScrapeResult);
-    const qfcAsJson = JSON.stringify(qfcScrapeResult);
-    const wfAsJson = JSON.stringify(wholeFoodsScrapeResult);
+    const fmAsJson = JSON.stringify(scrapeResults.FredMeyer);
+    const qfcAsJson = JSON.stringify(scrapeResults.QFC);
+    const wfAsJson = JSON.stringify(scrapeResults.WholeFoods);
 
     // Create a folder called ScrapeResults
     if (!fs.existsSync("ScrapeResults")) {
@@ -44,4 +58,4 @@ export const webScraperController = async () => {
     logger.info(
         "Make sure to execute 'npm run format' to format the ugly json output!"
     );
-};
+}

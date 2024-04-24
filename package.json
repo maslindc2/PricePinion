@@ -37,6 +37,7 @@
     "devDependencies": {
         "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@types/chai": "^4.3.14",
+        "@types/cors": "^2.8.17",
         "@types/mocha": "^10.0.6",
         "@types/node": "^20.12.3",
         "@types/sinon": "^17.0.3",
@@ -55,8 +56,10 @@
     "dependencies": {
         "@types/express": "^4.17.21",
         "axios": "^1.6.8",
+        "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
+        "mongoose": "^8.3.2",
         "puppeteer": "^22.6.1",
         "puppeteer-extra": "^3.3.6",
         "puppeteer-extra-plugin-stealth": "^2.11.2",
