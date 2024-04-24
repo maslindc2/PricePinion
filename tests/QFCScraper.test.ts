@@ -1,13 +1,14 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { qfcScraper } from "@store-scrapers/QFCScraper";
+import { QFCScraper } from "@store-scrapers/QFCScraper";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test QFC scraper", async () => {
     it("scrapes all urls for QFC, returns an object with scraped products, all object valus are strings", async () => {
+        const qfcScraperObj = new QFCScraper();
         // Runs the QFC Scraper and stores the scraped products
-        const scrapeResults = await qfcScraper();
+        const scrapeResults = await qfcScraperObj.qfcScraper();
         expect(scrapeResults).to.be.instanceOf(Object);
         // Expect the scrape results to contain entries for the departments
         expect(Object.keys(scrapeResults)).to.not.be.empty;

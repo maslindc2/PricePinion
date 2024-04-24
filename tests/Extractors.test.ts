@@ -25,6 +25,7 @@ describe("Extract product url from a link", () => {
             linkElement.href = "/p/fake-product";
             return linkElement;
         });
+
         // Creates a fake product that we can use to return our fake link element
         const productStub = sinon.createStubInstance(ElementHandle<Element>);
         // When the query function is called return our fake link element
@@ -35,6 +36,7 @@ describe("Extract product url from a link", () => {
             productStub,
             ".kds-Link"
         );
+
         // Close the browser instance as we have extracted the href from the productStub we provided.
         await browserInstance.close();
         // Expect the extracted url to contian our base url and our fake product href from our fake link we made earlier.

@@ -1,13 +1,14 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { fredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
+import { FredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test Fred Meyer scraper", async () => {
     it("scrapes all urls for Fred Meyer, returns an object with scraped products, all object valus are strings", async () => {
+        const fmScraperObj = new FredMeyerScraper();
         // Runs the Fred Meyer Scraper and stores the scraped products
-        const scrapeResults = await fredMeyerScraper();
+        const scrapeResults = await fmScraperObj.fredMeyerScraper();
         expect(scrapeResults).to.be.instanceOf(Object);
         // Expect the scrape results to contain entries for the departments
         expect(Object.keys(scrapeResults)).to.not.be.empty;

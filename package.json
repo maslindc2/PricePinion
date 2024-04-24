@@ -2,50 +2,32 @@
     "name": "webscrape-workbench",
     "version": "1.2.0",
     "description": "This is the webscraper we will be using for PricePinion.",
-    "main": "index.js",
+    "main": "AppServer.js",
     "scripts": {
         "test": "mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
-        "test:coverage": "nyc --reporter=html mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
         "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
-        "dev": "npm run build && node dist/src/index.js",
-        "lint": "eslint --ignore-path .eslintignore --ext .js,.ts",
+        "dev": "npm run build && node dist/src/AppServer.js",
+        "dev:watch": "nodemon --watch 'src/**/*.ts' --exec npm run dev",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""
-    },
-    "nyc": {
-        "extension": [
-            ".ts",
-            ".tsx"
-        ],
-        "exclude": [
-            "**/*.d.ts"
-        ],
-        "reporter": [
-            "html"
-        ],
-        "all": true
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/PricePinion/Webscrape-Workbench.git"
+        "url": "git+https://github.com/PricePinion/PricePinion-Backend.git"
     },
     "author": "PricePinion Ltd.",
     "license": "ISC",
     "bugs": {
-        "url": "https://github.com/PricePinion/Webscrape-Workbench/issues"
+        "url": "https://github.com/PricePinion/PricePinion-Backend/issues"
     },
-    "homepage": "https://github.com/PricePinion/Webscrape-Workbench#readme",
+    "homepage": "https://github.com/PricePinion/PricePinion-Backend#readme",
     "devDependencies": {
-        "@istanbuljs/nyc-config-typescript": "^1.0.2",
         "@types/chai": "^4.3.14",
-        "@types/cors": "^2.8.17",
         "@types/mocha": "^10.0.6",
         "@types/node": "^20.12.3",
         "@types/sinon": "^17.0.3",
-        "@typescript-eslint/eslint-plugin": "^7.4.0",
-        "@typescript-eslint/parser": "^7.4.0",
         "chai": "^4.4.1",
-        "eslint": "^8.57.0",
         "mocha": "^10.4.0",
+        "nodemon": "^3.1.0",
         "prettier": "^3.2.5",
         "sinon": "^17.0.1",
         "ts-node": "^9.1.1",
@@ -55,8 +37,6 @@
     },
     "dependencies": {
         "@types/express": "^4.17.21",
-        "axios": "^1.6.8",
-        "cors": "^2.8.5",
         "dotenv": "^16.4.5",
         "express": "^4.19.2",
         "mongoose": "^8.3.2",
