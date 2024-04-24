@@ -1,13 +1,14 @@
 import { expect } from "chai";
 import { describe, it } from "mocha";
-import { wholeFoodsScraper } from "@store-scrapers/WholeFoodsScraper";
+import { WholeFoodsScraper } from "@store-scrapers/WholeFoodsScraper";
 import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test Wholefoods scraper", async () => {
     it("scrapes all urls for Wholefoods, returns an object with scraped products, all object valus are strings", async () => {
+        const wfScraperObj = new WholeFoodsScraper();
         // Runs the Wholefoods Scraper and stores the scraped products
-        const scrapeResults = await wholeFoodsScraper();
+        const scrapeResults = await wfScraperObj.wholeFoodsScraper();
         expect(scrapeResults).to.be.instanceOf(Object);
         // Expect the scrape results to contain entries for the departments
         expect(Object.keys(scrapeResults)).to.not.be.empty;
