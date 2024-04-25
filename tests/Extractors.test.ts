@@ -1,21 +1,21 @@
 import { expect } from "chai";
-import { describe, it } from "mocha";
-import {
-    extractFromAria,
-    extractFromValue,
-    extractProductImage,
-    extractProductURL,
-    extractTextContent,
-} from "@scraper-extractors";
+import { beforeEach, describe, it } from "mocha";
+import { Extractors } from "@scraper-extractors";
 import { ElementHandle } from "puppeteer";
-import { createBrowserInstance } from "@create-browser-instance";
+import { BrowserInstance } from "@create-browser-instance";
 import sinon from "sinon";
 
 describe("Extract product url from a link", () => {
+    let browserInstanceObj;
+    let extractorsObj;
+    beforeEach(() => {
+        browserInstanceObj = new BrowserInstance();
+        extractorsObj = new Extractors();
+    });
     // Before we extract a product url we must create a fake Element Tag for the extractProductURL function to be tested
     it("extracts product url from link returns fred meyer base url + product url", async () => {
-        // Create a browser instance with headless set to true.
-        const browserInstance = await createBrowserInstance(true);
+        const browserInstance =
+            await browserInstanceObj.createBrowserInstance(true);
         const page = await browserInstance.newPage();
         await page.goto("about:blank");
         // Creates a fake link element we can then use to extract details from
@@ -31,7 +31,7 @@ describe("Extract product url from a link", () => {
         // When the query function is called return our fake link element
         productStub.$.returns(Promise.resolve(fakeLink));
         // extracts the url from the link
-        const fakeProductURL = await extractProductURL(
+        const fakeProductURL = await extractorsObj.extractProductURL(
             "https://fredmeyer.com",
             productStub,
             ".kds-Link"
@@ -48,7 +48,7 @@ describe("Extract product url from a link", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractProductURL(
+        const result = await extractorsObj.extractProductURL(
             "http://fake-base-url.com",
             productStub,
             "non-existent-class"
@@ -59,9 +59,17 @@ describe("Extract product url from a link", () => {
 });
 
 describe("Extract product name from an aria label", () => {
+    let browserInstanceObj;
+    let extractorsObj;
+    beforeEach(() => {
+        browserInstanceObj = new BrowserInstance();
+        extractorsObj = new Extractors();
+    });
+
     // Before we extract a product url we must create a fake link Tag for the extractProductURL function to be tested
     it("extracts product name from link returns fred meyer base url + product url", async () => {
-        const browserInstance = await createBrowserInstance(true);
+        const browserInstance =
+            await browserInstanceObj.createBrowserInstance(true);
         const page = await browserInstance.newPage();
         await page.goto("about:blank");
         // Creates a fake link element we can then use to extract details from
@@ -76,7 +84,7 @@ describe("Extract product name from an aria label", () => {
         // When the query function is called return our fake link element
         productStub.$.returns(Promise.resolve(fakeLink));
         // Extracts the aria label from the link
-        const fakeProductAriaLabel = await extractFromAria(
+        const fakeProductAriaLabel = await extractorsObj.extractFromAria(
             productStub,
             ".kds-Link"
         );
@@ -91,18 +99,29 @@ describe("Extract product name from an aria label", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractFromAria(productStub, "non-existent-class");
+        const result = await extractorsObj.extractFromAria(
+            productStub,
+            "non-existent-class"
+        );
         // expect that the result is null
         expect(result).to.equal(null);
     });
 });
 
 describe("Extract product image from an image tag", () => {
+    let browserInstanceObj;
+    let extractorsObj;
+    beforeEach(() => {
+        browserInstanceObj = new BrowserInstance();
+        extractorsObj = new Extractors();
+    });
+
     // Before we extract a product url we must create a fake Element Tag for the extractProductURL function to be tested
     it("extracts product image url from image tag", async () => {
         // Create a browser instance and go to a blank page
         // We need a browser instance in order to create a real element tag
-        const browserInstance = await createBrowserInstance(true);
+        const browserInstance =
+            await browserInstanceObj.createBrowserInstance(true);
         const page = await browserInstance.newPage();
         await page.goto("about:blank");
 
@@ -120,7 +139,7 @@ describe("Extract product image from an image tag", () => {
         // When the query function is called return our fake image element we return our fakeImageTag
         productStub.$.returns(Promise.resolve(fakeImageTag));
         // extracts the url from the fakeImageTag
-        const fakeProductImageSrc = await extractProductImage(
+        const fakeProductImageSrc = await extractorsObj.extractProductImage(
             productStub,
             ".kds-Image-img"
         );
@@ -137,7 +156,7 @@ describe("Extract product image from an image tag", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractProductImage(
+        const result = await extractorsObj.extractProductImage(
             productStub,
             "non-existent-class"
         );
@@ -147,11 +166,18 @@ describe("Extract product image from an image tag", () => {
 });
 
 describe("Extract inner text from a span tag", () => {
+    let browserInstanceObj;
+    let extractorsObj;
+    beforeEach(() => {
+        browserInstanceObj = new BrowserInstance();
+        extractorsObj = new Extractors();
+    });
     // Before we extract a tag's inner text we must create a fake Element Tag for the extractTagValue function to be tested
     it("extracts inner text from span tag", async () => {
         // Create a browser instance and go to a blank page
         // We need a browser instance in order to create a real element tag
-        const browserInstance = await createBrowserInstance(true);
+        const browserInstance =
+            await browserInstanceObj.createBrowserInstance(true);
         const page = await browserInstance.newPage();
         await page.goto("about:blank");
 
@@ -168,7 +194,7 @@ describe("Extract inner text from a span tag", () => {
         // When the query function is called return our fake image element we return our fakeImageTag
         productStub.$.returns(Promise.resolve(fakeSpanTag));
         // extracts the url from the fakeImageTag
-        const fakeSpanInnerText = await extractTextContent(
+        const fakeSpanInnerText = await extractorsObj.extractTextContent(
             productStub,
             ".product-price"
         );
@@ -183,7 +209,7 @@ describe("Extract inner text from a span tag", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractTextContent(
+        const result = await extractorsObj.extractTextContent(
             productStub,
             "non-existent-class"
         );
@@ -193,9 +219,16 @@ describe("Extract inner text from a span tag", () => {
 });
 
 describe("Extract product price from a value attribute", () => {
+    let browserInstanceObj;
+    let extractorsObj;
+    beforeEach(() => {
+        browserInstanceObj = new BrowserInstance();
+        extractorsObj = new Extractors();
+    });
     // Before we extract a product value attribute we must create a fake data Tag for the extractFromValue function to be tested
     it("extracts product price from a value attribute", async () => {
-        const browserInstance = await createBrowserInstance(true);
+        const browserInstance =
+            await browserInstanceObj.createBrowserInstance(true);
         const page = await browserInstance.newPage();
         await page.goto("about:blank");
         // Creates a fake data element we can then use to extract details from
@@ -210,7 +243,7 @@ describe("Extract product price from a value attribute", () => {
         // When the query function is called return our fake data element
         productStub.$.returns(Promise.resolve(fakeDataTag));
         // Extracts the value attribute from the data element
-        const fakeDataTagValue = await extractFromValue(
+        const fakeDataTagValue = await extractorsObj.extractFromValue(
             productStub,
             ".kds-price"
         );
@@ -225,7 +258,7 @@ describe("Extract product price from a value attribute", () => {
         // Resolve the query function as null to simulate that we failed to find a product tag
         productStub.$.returns(Promise.resolve(null));
         // Call the product URL extractor with our fake stub
-        const result = await extractFromValue(
+        const result = await extractorsObj.extractFromValue(
             productStub,
             "non-existent-class"
         );

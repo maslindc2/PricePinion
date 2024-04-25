@@ -1,4 +1,4 @@
-import { createBrowserInstance } from "@create-browser-instance";
+import { BrowserInstance } from "@create-browser-instance";
 import { IProductInfo } from "src/interfaces/IProductInfo";
 import { logger } from "@logger";
 import { Browser } from "puppeteer";
@@ -58,9 +58,15 @@ class ScraperUtils {
                     } else {
                         runHeadless = true;
                     }
+
+                    // Creating the browser instance object
+                    const browserInstanceObj = new BrowserInstance();
                     // Creates a browser instance before we scrape the site.
                     // This allows us to run concurrent scrape jobs, where each instance scrapes the URL.
-                    browserInstance = await createBrowserInstance(runHeadless);
+                    browserInstance =
+                        await browserInstanceObj.createBrowserInstance(
+                            runHeadless
+                        );
                 } catch (error) {
                     // Log that the browser instance failed to create for the current url and why it failed to create
                     logger.error(

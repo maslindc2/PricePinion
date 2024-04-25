@@ -26,21 +26,24 @@ class WebScraperController {
         // Runs Fred Meyer's Scraper and stores the results as an object
         const fredMeyerScrapeResult: Object =
             await this.fmScraperObj.fredMeyerScraper();
+        // Runs QFC's Scraper and stores the results as an object
         const qfcScrapeResult: Object = await this.qfcScraperObj.qfcScraper();
+        // Runs Wholefoods' Scraper and stores the results as an object
         const wholeFoodsScrapeResult: Object =
             await this.wfScraperObj.wholeFoodsScraper();
 
+        //Create an object to store the results in
         const scrapeResults = {
             FredMeyer: fredMeyerScrapeResult,
             QFC: qfcScrapeResult,
             WholeFoods: wholeFoodsScrapeResult,
         };
+        // Return the scrape result object
         return scrapeResults;
     }
     /**
      * DEVELOPMENT ONLY FUNCTION
      * This allows you to write the results from the scrapers to JSON files
-     * This function will be removed!
      * @param scrapeResults Object containing results from the 3 scrapers
      */
     public resultToJSON(scrapeResults: any): void {

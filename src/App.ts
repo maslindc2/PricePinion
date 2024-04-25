@@ -1,20 +1,22 @@
+import fs from "fs";
 import { logger } from "@logger";
 import express from "express";
 import { WebScraperController } from "./WebScraping/WebScraperController";
+import { ProductModel } from "@product-model";
 // Creates and configures an ExpressJS web server.
 class App {
     // ref to Express instance
     public expressApp: express.Application;
-    //TODO: Product model ref gets set here
+    public Products: ProductModel;
 
     //Run configuration methods on the Express instance.
     constructor(mongoDBConnection: string) {
         this.expressApp = express();
         this.middleware();
         this.routes();
-        logger.info(mongoDBConnection);
         this.scrapeAllStores();
-        //this.Lists = new ProductModel(mongoDBConnection);
+        //this.updateProducts();
+        this.Products = new ProductModel(mongoDBConnection);
     }
 
     // Configure the express middleware
@@ -32,7 +34,7 @@ class App {
             next();
         });
     }
-
+    // Defining the routes use for PricePinion's Express server
     private routes(): void {
         const router = express.Router();
         router.get("/", (req, res) => {
@@ -48,11 +50,38 @@ class App {
         });
         this.expressApp.use("/", router);
     }
+    // Scrape store function starts the webscraper
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
+        // Creating a scraperController object
         const scraperContoller = new WebScraperController();
+        // Run the webscraper and store object results
         const results = await scraperContoller.runWebScrapers();
+        // Store the results object to JSON
         scraperContoller.resultToJSON(results);
+    }
+    private async updateProducts() {
+        const fredMeyerScrapeResult = fs.readFileSync(
+            "ScrapeResults/FredMeyer_Scrape_Results.json",
+            { encoding: "utf8", flag: "r" }
+        );
+        const qfcScrapeResult = fs.readFileSync(
+            "ScrapeResults/FredMeyer_Scrape_Results.json",
+            { encoding: "utf8", flag: "r" }
+        );
+        const wholeFoodsScrapeResult = fs.readFileSync(
+            "ScrapeResults/FredMeyer_Scrape_Results.json",
+            { encoding: "utf8", flag: "r" }
+        );
+        const FMObject = JSON.parse(fredMeyerScrapeResult);
+        const QFCObject = JSON.parse(qfcScrapeResult);
+        const wfObject = JSON.parse(wholeFoodsScrapeResult);
+
+        const scrapeResults = {
+            FredMeyer: FMObject,
+            QFC: QFCObject,
+            WholeFoods: wfObject,
+        };
     }
 }
 export { App };

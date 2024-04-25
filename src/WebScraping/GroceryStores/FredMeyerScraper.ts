@@ -7,12 +7,7 @@ import { logger } from "@logger";
 import { Browser, ElementHandle } from "puppeteer";
 import { IProductInfo } from "src/interfaces/IProductInfo";
 import { ScraperUtils } from "@scraper-utils";
-import {
-    extractProductImage,
-    extractProductURL,
-    extractFromAria,
-    extractFromValue,
-} from "@scraper-extractors";
+import { Extractors } from "@scraper-extractors";
 
 class FredMeyerScraper {
     public scraperUtilObj: ScraperUtils;
@@ -114,6 +109,7 @@ class FredMeyerScraper {
      * @returns Returns the product data we have extracted from the current page.
      */
     public async scrapePage(productGridContainer: ElementHandle<Element>) {
+        const extractorObj = new Extractors();
         // Target all classes and child elements that have the following class structure
         const productsGrid =
             await productGridContainer.$$(".AutoGrid-cell > *");
@@ -125,27 +121,27 @@ class FredMeyerScraper {
             // Extract the current product name using the current product and the class structure
             // The class structure for product name always has the parent tag with a class="mb-4" and a child with class="kds-link"
             // Why not just target kds-link? This class is reused again throughout for other elements so we need to follow this structure.
-            const productName = await extractFromAria(
+            const productName = await extractorObj.extractFromAria(
                 product,
                 ".mb-4 > .kds-Link"
             );
 
             // Extract the current product image URL
-            const productImage = await extractProductImage(
+            const productImage = await extractorObj.extractProductImage(
                 product,
                 ".kds-Link > .h-full > .kds-Image-img"
             );
 
             // Extract the current product price using the current product cell and the class structure
             // The class structure here is just class=kds-Price--alternate this is only used for the product price.
-            const productPrice = await extractFromValue(
+            const productPrice = await extractorObj.extractFromValue(
                 product,
                 ".kds-Price--alternate"
             );
 
             // Extract the current product URL using the current product and targeting the same as product name
             // Kroger shortens the URL to just be p/product-id so we need to add the base url for the site.
-            const productURL = await extractProductURL(
+            const productURL = await extractorObj.extractProductURL(
                 "https://www.fredmeyer.com",
                 product,
                 ".mb-4 > .kds-Link"
