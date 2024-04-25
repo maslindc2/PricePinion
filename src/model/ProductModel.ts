@@ -35,7 +35,37 @@ class ProductModel {
             logger.error(error);
         }
     }
-    public async retireveProduct(productName: string) {
+    
+    /** Below are queries used for the Frontend */
+
+    // Retrieves all products in the database
+    public async retrieveAllProducts(response: any){
+        const query = this.model.find({});
+        try {
+            const products = await query.exec();
+            response.json(products);
+        } catch (error) {
+            logger.error(error);
+        }
+    }
+    // Retireves only a specific product that matches the product id from the database
+    public async retrieveProductByID(response: any, id: any){
+        // Find a product in the db that matches the request
+        const query = this.model.findOne({productID: id});
+        try {
+            const products = await query.exec();
+            response.json(products);
+        } catch (error) {
+            logger.error(error);
+        }
+    }
+
+    /** Below are queries used for the ProductProcessor */
+
+    // This query is used for getting a product record from the DB
+    // If it exists product processor will either add a product to the productComparison array
+    // or update it.  If the product record does not exist it will return null
+    public async retireveProductByName(productName: string) {
         const query = this.model.findOne({ productName: productName });
         try {
             const productRecord = await query.exec();
@@ -44,7 +74,10 @@ class ProductModel {
             logger.error(error);
             return false;
         }
-    }
+    }    
+    // This query is used for checking if a specific product and store is located in the DB
+    // If it is, then we update that product, if it isn't then ProductProcessor will add the current product
+    // to the productComparison array.
     public async checkIfProductExistsAtCurrStore(
         productName: string,
         storeName: string

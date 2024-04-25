@@ -8,8 +8,8 @@ import { logger } from "@logger";
 import { ProductModel } from "@product-model";
 
 class ProductProcessor {
-    private Products: ProductModel
-    constructor(Products: ProductModel){
+    private Products: ProductModel;
+    constructor(Products: ProductModel) {
         this.Products = Products;
     }
     public async updateProducts(scrapeResults) {
@@ -22,23 +22,35 @@ class ProductProcessor {
             for (const department of Object.keys(currStore)) {
                 // Iterate through the products in that department
                 for (const currProduct of currStore[department]) {
-                    const id = crypto.randomBytes(16).toString("hex");
-                    currProduct.productID = id;
                     try {
                         // Get the current product from the DB, this will return a record if the product exists, or it will return null if it doesn't
-                        const productRecord = await this.Products.retireveProduct(currProduct.productName);
+                        const productRecord =
+                            await this.Products.retireveProductByName(
+                                currProduct.productName
+                            );
                         // If product does exist in the database
                         if (productRecord) {
                             // Check if it's at the current store, if it does we update the product's information
-                            const doesProductExistAtCurrStore = await this.Products.checkIfProductExistsAtCurrStore(currProduct.productName, currProduct.storeName);
+                            const doesProductExistAtCurrStore =
+                                await this.Products.checkIfProductExistsAtCurrStore(
+                                    currProduct.productName,
+                                    currProduct.storeName
+                                );
                             // TODO: Create update product function, if the product exists in the DB update it. Currently only add the product if it does not exist yet
                             // If the product does not exist at the current store we will add it to the product comparison section
                             if (!doesProductExistAtCurrStore) {
-                                await this.addToProductComparison(productRecord, currProduct);
+                                await this.addToProductComparison(
+                                    productRecord,
+                                    currProduct
+                                );
                             }
                         } else {
                             //The product does not exist AT ALL in the database we create it.
                             try {
+                                // Since we are saving the product for the first time we are going to create a productID
+                                // The products in the product comparison array do not need it.
+                                const id = crypto.randomBytes(16).toString("hex");
+                                currProduct.productID = id;
                                 // Create the product using the current product object
                                 await this.Products.model.create(currProduct);
                             } catch (error) {
@@ -47,18 +59,25 @@ class ProductProcessor {
                             }
                         }
                     } catch (error) {
-                        logger.error(`Object creation/update failed! Error: ${error}`);
+                        logger.error(
+                            `Object creation/update failed! Error: ${error}`
+                        );
                     }
                 }
             }
         }
+        logger.info("Finished storing scrape results to the DB!");
     }
     private async addToProductComparison(productRecord, currProduct) {
         // Check if the currProduct already exists in the productComparison array on the DB.
         // If it does check if we need to update it
         const productComparison = productRecord.productComparison;
-        const result = productComparison.find(product => product.productName === currProduct.productName && product.storeName === currProduct.storeName);
-        if(!result){
+        const result = productComparison.find(
+            (product) =>
+                product.productName === currProduct.productName &&
+                product.storeName === currProduct.storeName
+        );
+        if (!result) {
             // If the product does not exist at the current store we will add it to the product comparison section
             productRecord.productComparison.push(currProduct);
             await productRecord.save();
@@ -74,11 +93,11 @@ class ProductProcessor {
         if (!fs.existsSync("ScrapeResults")) {
             fs.mkdirSync("ScrapeResults");
         }
-
+        const scrapeResultsAsJSON = JSON.stringify(scrapeResults);
         // Write the results from FredMeyer to a json
         fs.writeFileSync(
             "ScrapeResults/Scrape_Results.json",
-            scrapeResults,
+            scrapeResultsAsJSON,
             {
                 flag: "w",
             }
@@ -104,4 +123,4 @@ class ProductProcessor {
         return scrapeResults;
     }
 }
-export {ProductProcessor};
+export { ProductProcessor };
