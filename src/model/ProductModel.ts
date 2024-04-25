@@ -22,7 +22,7 @@ class ProductModel {
                 productPrice: String,
                 productLink: String,
                 productImage: String,
-                productComparison: Array
+                productComparison: Array,
             },
             { collection: "products" }
         );
@@ -35,13 +35,29 @@ class ProductModel {
             logger.error(error);
         }
     }
-    public async checkIfProductExists(productName: string): Promise<boolean> {
-        const query = this.model.findOne({productName: productName});
+    public async retireveProduct(productName: string) {
+        const query = this.model.findOne({ productName: productName });
         try {
             const productRecord = await query.exec();
-            if(productRecord){
+            return productRecord;
+        } catch (error) {
+            logger.error(error);
+            return false;
+        }
+    }
+    public async checkIfProductExistsAtCurrStore(
+        productName: string,
+        storeName: string
+    ) {
+        const query = this.model.findOne({
+            productName: productName,
+            storeName: storeName,
+        });
+        try {
+            const productRecord = await query.exec();
+            if (productRecord) {
                 return true;
-            }else{
+            } else {
                 return false;
             }
         } catch (error) {
@@ -49,20 +65,5 @@ class ProductModel {
             return false;
         }
     }
-    public async checkIfProductExistsAtCurrStore(productName: string, storeName: string){
-        const query = this.model.findOne({productName: productName, storeName: storeName});
-        try {
-            const productRecord = await query.exec();
-            if(productRecord){
-                return true;
-            }else{
-                return false;
-            }
-        } catch (error) {
-            logger.error(error);
-            return false;
-        }
-    }
-
 }
 export { ProductModel };

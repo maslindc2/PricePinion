@@ -2,6 +2,7 @@ import fs from "fs";
 import { logger } from "@logger";
 import express from "express";
 import { WebScraperController } from "./WebScraping/WebScraperController";
+import { ProductProcessor } from "./WebScraping/ProductProcessor";
 import { ProductModel } from "@product-model";
 import crypto from "crypto";
 
@@ -16,8 +17,8 @@ class App {
         this.expressApp = express();
         this.middleware();
         this.routes();
-        //this.scrapeAllStores();
         this.Products = new ProductModel(mongoDBConnection);
+        this.scrapeAllStores();
     }
 
     // Configure the express middleware
@@ -38,9 +39,10 @@ class App {
     // Defining the routes use for PricePinion's Express server
     private routes(): void {
         const router = express.Router();
+        // When we recieve a request from the root of our express server we run the scrape job
         router.get("/", (req, res) => {
             res.send("Welcome to PricePinion Server!");
-            this.updateProducts();
+            //this.scrapeAllStores();
         });
         router.get("/api/products", (req, res) => {
             res.send("Homepage product route");
@@ -58,73 +60,15 @@ class App {
         // Creating a scraperController object
         const scraperContoller = new WebScraperController();
         // Run the webscraper and store object results
-        const results = await scraperContoller.runWebScrapers();
+        const scrapeResults = await scraperContoller.runWebScrapers();
+        // Creating an object productProcessor
+        const productProcessor = new ProductProcessor(this.Products);
         // Store the results object to JSON
-        scraperContoller.resultToJSON(results);
-    }
-    private async updateProducts() {
-        const fredMeyerScrapeResult = fs.readFileSync(
-            "ScrapeResults/FredMeyer_Scrape_Results.json",
-            { encoding: "utf8", flag: "r" }
-        );
-        const qfcScrapeResult = fs.readFileSync(
-            "ScrapeResults/QFC_Scrape_Results.json",
-            { encoding: "utf8", flag: "r" }
-        );
-        const wholeFoodsScrapeResult = fs.readFileSync(
-            "ScrapeResults/WholeFoods_Scrape_Results.json",
-            { encoding: "utf8", flag: "r" }
-        );
-        const FMObject = JSON.parse(fredMeyerScrapeResult);
-        const QFCObject = JSON.parse(qfcScrapeResult);
-        const wfObject = JSON.parse(wholeFoodsScrapeResult);
-
-        const scrapeResults = {
-            FredMeyer: FMObject,
-            QFC: QFCObject,
-            WholeFoods: wfObject,
-        };
-
-
-        // For each store in the scrape results object
-        for (const store in scrapeResults) {
-            // Get the current store in the scrape results object
-            let currStore = scrapeResults[store];
-            // For each department in the current store
-            for (const department of Object.keys(currStore)) {
-                // Iterate through the products in that department
-                for (const product of currStore[department]) {
-                    const id = crypto.randomBytes(16).toString("hex");
-                    product.productID = id;
-                    try {
-                        // Check if the product currently exists in the database
-                        const doesProductExist = await this.Products.checkIfProductExists(product.productName);
-                        // If it does exist in the database
-                        if (doesProductExist) {
-                            // Check if it's at the current store, if it does we update the product's information
-                            const doesProductExistAtCurrStore = await this.Products.checkIfProductExistsAtCurrStore(product.productName, product.storeName);
-                            if (doesProductExistAtCurrStore) {
-                                console.log("Update the current product's info");
-                            } else {
-                                // If the product does not exist at the current store we will add it to the product comparison section
-                                console.log("Add current product to product comparison");
-                            }
-                        } else {
-                            //The product does not exist AT ALL in the database we create it.
-                            try {
-                                // Create the product using the current product object
-                                await this.Products.model.create(product);
-                            } catch (error) {
-                                // If the product failed to create log the error
-                                logger.error(error);
-                            }
-                        }
-                    } catch (error) {
-                        logger.error(`Object creation failed! Error: ${error}`);
-                    }
-                }
-            }
-        }
+        //productProcessor.resultToJSON(scraperResults);
+        // Read scraper results from JSON
+        //const scrapeResults = productProcessor.jsonResultsToObject();
+        // Process and update the products on the DB using the results from the web scraper
+        productProcessor.updateProducts(scrapeResults);
     }
 }
 export { App };
