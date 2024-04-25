@@ -3,6 +3,8 @@ import { logger } from "@logger";
 import express from "express";
 import { WebScraperController } from "./WebScraping/WebScraperController";
 import { ProductModel } from "@product-model";
+import crypto from "crypto";
+
 // Creates and configures an ExpressJS web server.
 class App {
     // ref to Express instance
@@ -14,8 +16,7 @@ class App {
         this.expressApp = express();
         this.middleware();
         this.routes();
-        this.scrapeAllStores();
-        //this.updateProducts();
+        //this.scrapeAllStores();
         this.Products = new ProductModel(mongoDBConnection);
     }
 
@@ -39,6 +40,7 @@ class App {
         const router = express.Router();
         router.get("/", (req, res) => {
             res.send("Welcome to PricePinion Server!");
+            this.updateProducts();
         });
         router.get("/api/products", (req, res) => {
             res.send("Homepage product route");
@@ -82,6 +84,25 @@ class App {
             QFC: QFCObject,
             WholeFoods: wfObject,
         };
+        // For each store in the scrape results object
+        for (const store in scrapeResults) {
+            // Get the current store in the scrape results object
+            const currStore = scrapeResults[store];
+            // For each department in the current store
+            for (const department of Object.keys(currStore)) {
+                // Iterate through the products in that department
+                for (const product of currStore[department]) {
+                    const id = crypto.randomBytes(16).toString("hex");
+                    product.productID = id;
+                    product.productStore = store;
+                    try {
+                        await this.Products.model.create([product]);
+                    } catch (error) {
+                        logger.error(`Object creation failed! Error: ${error}`);
+                    }
+                }
+            }
+        }
     }
 }
 export { App };
