@@ -196,9 +196,10 @@ class WholeFoodsScraper {
             // If any one of these variables are undefined then we failed to extract the product information.
             const productInfo: IProductInfo = {
                 productName: productName,
-                productImage: productImage,
+                storeName: "Whole Foods",
                 productPrice: productPrice,
-                productURL: productURL,
+                productLink: productURL,
+                productImage: productImage,
             };
             // Add the product info to the product data array
             productData.push(productInfo);

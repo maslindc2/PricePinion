@@ -145,9 +145,10 @@ class QFCScraper {
             // If any one of these variables are undefined then we failed to extract the product information
             const productInfo: IProductInfo = {
                 productName: productName,
-                productImage: productImage,
+                storeName: "QFC",
                 productPrice: productPrice,
-                productURL: productURL,
+                productLink: productURL,
+                productImage: productImage,
             };
 
             productData.push(productInfo);

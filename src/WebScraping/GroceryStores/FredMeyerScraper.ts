@@ -151,9 +151,10 @@ class FredMeyerScraper {
             // If any one of these variables are undefined then we failed to extract the product information
             const productInfo: IProductInfo = {
                 productName: productName,
-                productImage: productImage,
+                storeName: "Fred Meyer",
                 productPrice: productPrice,
-                productURL: productURL,
+                productLink: productURL,
+                productImage: productImage,
             };
 
             productData.push(productInfo);

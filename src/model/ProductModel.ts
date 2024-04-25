@@ -18,9 +18,11 @@ class ProductModel {
             {
                 productID: String,
                 productName: String,
-                productStore: String,
+                storeName: String,
                 productPrice: String,
-                productURL: String,
+                productLink: String,
+                productImage: String,
+                productComparison: Array
             },
             { collection: "products" }
         );
@@ -33,6 +35,34 @@ class ProductModel {
             logger.error(error);
         }
     }
-    // Querires go below here
+    public async checkIfProductExists(productName: string): Promise<boolean> {
+        const query = this.model.findOne({productName: productName});
+        try {
+            const productRecord = await query.exec();
+            if(productRecord){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (error) {
+            logger.error(error);
+            return false;
+        }
+    }
+    public async checkIfProductExistsAtCurrStore(productName: string, storeName: string){
+        const query = this.model.findOne({productName: productName, storeName: storeName});
+        try {
+            const productRecord = await query.exec();
+            if(productRecord){
+                return true;
+            }else{
+                return false;
+            }
+        } catch (error) {
+            logger.error(error);
+            return false;
+        }
+    }
+
 }
 export { ProductModel };

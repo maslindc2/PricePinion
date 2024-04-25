@@ -68,11 +68,11 @@ class App {
             { encoding: "utf8", flag: "r" }
         );
         const qfcScrapeResult = fs.readFileSync(
-            "ScrapeResults/FredMeyer_Scrape_Results.json",
+            "ScrapeResults/QFC_Scrape_Results.json",
             { encoding: "utf8", flag: "r" }
         );
         const wholeFoodsScrapeResult = fs.readFileSync(
-            "ScrapeResults/FredMeyer_Scrape_Results.json",
+            "ScrapeResults/WholeFoods_Scrape_Results.json",
             { encoding: "utf8", flag: "r" }
         );
         const FMObject = JSON.parse(fredMeyerScrapeResult);
@@ -84,19 +84,41 @@ class App {
             QFC: QFCObject,
             WholeFoods: wfObject,
         };
+
+
         // For each store in the scrape results object
         for (const store in scrapeResults) {
             // Get the current store in the scrape results object
-            const currStore = scrapeResults[store];
+            let currStore = scrapeResults[store];
             // For each department in the current store
             for (const department of Object.keys(currStore)) {
                 // Iterate through the products in that department
                 for (const product of currStore[department]) {
                     const id = crypto.randomBytes(16).toString("hex");
                     product.productID = id;
-                    product.productStore = store;
                     try {
-                        await this.Products.model.create([product]);
+                        // Check if the product currently exists in the database
+                        const doesProductExist = await this.Products.checkIfProductExists(product.productName);
+                        // If it does exist in the database
+                        if (doesProductExist) {
+                            // Check if it's at the current store, if it does we update the product's information
+                            const doesProductExistAtCurrStore = await this.Products.checkIfProductExistsAtCurrStore(product.productName, product.storeName);
+                            if (doesProductExistAtCurrStore) {
+                                console.log("Update the current product's info");
+                            } else {
+                                // If the product does not exist at the current store we will add it to the product comparison section
+                                console.log("Add current product to product comparison");
+                            }
+                        } else {
+                            //The product does not exist AT ALL in the database we create it.
+                            try {
+                                // Create the product using the current product object
+                                await this.Products.model.create(product);
+                            } catch (error) {
+                                // If the product failed to create log the error
+                                logger.error(error);
+                            }
+                        }
                     } catch (error) {
                         logger.error(`Object creation failed! Error: ${error}`);
                     }

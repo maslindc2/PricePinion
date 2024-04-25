@@ -3,10 +3,10 @@ import Mongoose = require("mongoose");
 interface IProductModel extends Mongoose.Document {
     productID: string;
     productName: string;
-    productStore: string;
-    productImage: string;
+    storeName: string;
     productPrice: string;
-    productURL: string;
+    productLink: string;
+    productImage: string;
 }
 
 export { IProductModel };
