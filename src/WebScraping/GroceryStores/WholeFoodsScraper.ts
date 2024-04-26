@@ -4,11 +4,7 @@
  * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
  */
 import { logger } from "@logger";
-import {
-    extractProductImage,
-    extractProductURL,
-    extractTextContent,
-} from "@scraper-extractors";
+import { Extractors } from "@scraper-extractors";
 import { IProductInfo } from "src/interfaces/IProductInfo";
 import { ScraperUtils } from "@scraper-utils";
 import { Browser, ElementHandle } from "puppeteer";
@@ -156,6 +152,7 @@ class WholeFoodsScraper {
      * @returns Returns the product data we have extracted from the current page.
      */
     public async scrapePage(productGridContainer: ElementHandle<Element>) {
+        const extractorObj = new Extractors();
         // Target all classes and child elements that have the following class structure
         const productsGrid = await productGridContainer.$$(
             ".w-pie--products-grid > *"
@@ -165,32 +162,32 @@ class WholeFoodsScraper {
         // For each product that matches the above class structure
         for (const product of productsGrid) {
             // Extract the current product image URL
-            const productImage = await extractProductImage(
+            const productImage = await extractorObj.extractProductImage(
                 product,
                 ".w-pie--product-tile > .w-pie--product-tile__link > .w-pie--product-tile__image > picture > img"
             );
             // Extract the current product URL using the current product and the below class structure
             // Whole Foods shortens the URL to just be /product/product-name so we need to add the base url for the site.
-            const productURL = await extractProductURL(
+            const productURL = await extractorObj.extractProductURL(
                 "https://www.wholefoodsmarket.com",
                 product,
                 ".w-pie--product-tile > .w-pie--product-tile__link"
             );
             // Extract the current product's name using the current product and the below class structure.
-            const productName = await extractTextContent(
+            const productName = await extractorObj.extractTextContent(
                 product,
                 ".w-pie--product-tile > .w-pie--product-tile__link > .w-pie--product-tile__content > .w-cms--font-body__sans-bold"
             );
             // Whole Foods shows prices in two ways either on sale or normal
             let productPrice;
             // If the product is on sale it uses the below class structure
-            productPrice = await extractTextContent(
+            productPrice = await extractorObj.extractTextContent(
                 product,
                 ".bds--heading-5 > .bds--heading-5"
             );
             // If the product price is NOT on sale, it uses the below class structure
             if (productPrice === null) {
-                productPrice = await extractTextContent(
+                productPrice = await extractorObj.extractTextContent(
                     product,
                     ".w-pie--product-tile__content > .bds--heading-5"
                 );
@@ -198,10 +195,11 @@ class WholeFoodsScraper {
             // If all fields are defined then we have successfully extracted product information
             // If any one of these variables are undefined then we failed to extract the product information.
             const productInfo: IProductInfo = {
-                name: productName,
-                image: productImage,
-                price: productPrice,
-                url: productURL,
+                productName: productName,
+                storeName: "Whole Foods",
+                productPrice: productPrice,
+                productLink: productURL,
+                productImage: productImage,
             };
             // Add the product info to the product data array
             productData.push(productInfo);

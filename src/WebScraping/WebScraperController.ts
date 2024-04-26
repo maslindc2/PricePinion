@@ -2,7 +2,6 @@
  * This is the Web Scraper controller for handling the web scraping jobs.
  * The controller will tell each of the grocery store scrapers to run.
  */
-import fs from "fs";
 import { logger } from "@logger";
 import { FredMeyerScraper } from "@store-scrapers/FredMeyerScraper";
 import { QFCScraper } from "@store-scrapers/QFCScraper";
@@ -26,61 +25,20 @@ class WebScraperController {
         // Runs Fred Meyer's Scraper and stores the results as an object
         const fredMeyerScrapeResult: Object =
             await this.fmScraperObj.fredMeyerScraper();
+        // Runs QFC's Scraper and stores the results as an object
         const qfcScrapeResult: Object = await this.qfcScraperObj.qfcScraper();
+        // Runs Wholefoods' Scraper and stores the results as an object
         const wholeFoodsScrapeResult: Object =
             await this.wfScraperObj.wholeFoodsScraper();
 
+        //Create an object to store the results in
         const scrapeResults = {
             FredMeyer: fredMeyerScrapeResult,
             QFC: qfcScrapeResult,
             WholeFoods: wholeFoodsScrapeResult,
         };
+        // Return the scrape result object
         return scrapeResults;
-    }
-    /**
-     * DEVELOPMENT ONLY FUNCTION
-     * This allows you to write the results from the scrapers to JSON files
-     * This function will be removed!
-     * @param scrapeResults Object containing results from the 3 scrapers
-     */
-    public resultToJSON(scrapeResults: any): void {
-        // Once we have the data stringify it for exporting to a json file
-        const fmAsJson = JSON.stringify(scrapeResults.FredMeyer);
-        const qfcAsJson = JSON.stringify(scrapeResults.QFC);
-        const wfAsJson = JSON.stringify(scrapeResults.WholeFoods);
-
-        // Create a folder called ScrapeResults
-        if (!fs.existsSync("ScrapeResults")) {
-            fs.mkdirSync("ScrapeResults");
-        }
-
-        // Write the results from FredMeyer to a json
-        fs.writeFileSync(
-            "ScrapeResults/FredMeyer_Scrape_Results.json",
-            fmAsJson,
-            {
-                flag: "w",
-            }
-        );
-        // Write the results from QFC to a json
-        fs.writeFileSync("ScrapeResults/QFC_Scrape_Results.json", qfcAsJson, {
-            flag: "w",
-        });
-
-        // Write the results from WholeFoods to a json
-        fs.writeFileSync(
-            "ScrapeResults/WholeFoods_Scrape_Results.json",
-            wfAsJson,
-            {
-                flag: "w",
-            }
-        );
-        logger.info(
-            "Wrote scrape results to JSON's in the directory ScrapeResults"
-        );
-        logger.info(
-            "Make sure to execute 'npm run format' to format the ugly json output!"
-        );
     }
 }
 export { WebScraperController };

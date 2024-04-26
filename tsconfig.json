@@ -40,7 +40,8 @@
             "@create-browser-instance": [
                 "./src/WebScraping/Utils/CreateBrowserInstance.ts"
             ],
-            "@product-model": ["./src/model/ProductModel.ts"]
+            "@product-model": ["./src/model/ProductModel.ts"],
+            "@customer-model": ["./src/model/CustomerModel.ts"]
             //"@product-route": ["./src/routes/products/Product.ts"]
         } /* Specify a set of entries that re-map imports to additional lookup locations. */,
         // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */

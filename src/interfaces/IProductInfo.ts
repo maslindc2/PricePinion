@@ -1,7 +1,8 @@
 interface IProductInfo {
-    name: string | null;
-    image: string | null;
-    price: string | null;
-    url: string | null;
+    productName: string | null;
+    storeName: string | null;
+    productPrice: string | null;
+    productLink: string | null;
+    productImage: string | null;
 }
 export { IProductInfo };
