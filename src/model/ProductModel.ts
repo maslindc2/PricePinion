@@ -16,7 +16,10 @@ class ProductModel {
     public createSchema() {
         this.schema = new Mongoose.Schema(
             {
-                productID: String,
+                productID: {
+                    type: String,
+                    index: true
+                },
                 productName: String,
                 storeName: String,
                 productPrice: String,
@@ -39,24 +42,31 @@ class ProductModel {
     /** Below are queries used for the Frontend */
 
     // Retrieves all products in the database
-    public async retrieveAllProducts(response: any){
-        const query = this.model.find({});
+    public async retrieveAllProducts(res: any){
+        // Find all products in the DB, since this is an API endpoint omit the default MongoDB _id field
+        // and the default versioning field from the response.
+        const query = this.model.find({}).select("-_id -__v");
         try {
+            // Execute the query and store the results to products
             const products = await query.exec();
-            response.json(products);
+            // Return the products response as JSON.
+            res.json(products);
         } catch (error) {
             logger.error(error);
         }
     }
     // Retireves only a specific product that matches the product id from the database
-    public async retrieveProductByID(response: any, id: any){
-        // Find a product in the db that matches the request
-        const query = this.model.findOne({productID: id});
+    public async retrieveProductByID(res: any, productID: any){
+        // Find a product in the db that matches the request, 
+        // since this is an API endpoint omit the default MongoDB _id field and the default versioning field from the response.
+        const query = this.model.findOne({productID: productID}).select("-_id -__v");
+        
         try {
             const products = await query.exec();
-            response.json(products);
+            res.json(products);
         } catch (error) {
             logger.error(error);
+            res.sendStatus(500);
         }
     }
 
@@ -72,7 +82,6 @@ class ProductModel {
             return productRecord;
         } catch (error) {
             logger.error(error);
-            return false;
         }
     }    
     // This query is used for checking if a specific product and store is located in the DB
