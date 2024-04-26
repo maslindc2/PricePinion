@@ -36,7 +36,7 @@ class ProductProcessor {
                                     currProduct.productName,
                                     currProduct.storeName
                                 );
-                            // TODO: Create update product function, if the product exists in the DB update it. Currently only add the product if it does not exist yet
+                            // TODO: Create update product function, if the product exists in the DB update it. Currently only add the product if it does not exist yet.
                             // If the product does not exist at the current store we will add it to the product comparison section
                             if (!doesProductExistAtCurrStore) {
                                 await this.addToProductComparison(
@@ -45,14 +45,9 @@ class ProductProcessor {
                                 );
                             }
                         } else {
-                            //The product does not exist AT ALL in the database we create it.
                             try {
-                                // Since we are saving the product for the first time we are going to create a productID
-                                // The products in the product comparison array do not need it.
-                                const id = crypto.randomBytes(16).toString("hex");
-                                currProduct.productID = id;
-                                // Create the product using the current product object
-                                await this.Products.model.create(currProduct);
+                                //If the product does not exist AT ALL in the database we create it.
+                                this.createNewProduct(currProduct);
                             } catch (error) {
                                 // If the product failed to create log the error
                                 logger.error(error);
@@ -67,6 +62,14 @@ class ProductProcessor {
             }
         }
         logger.info("Finished storing scrape results to the DB!");
+    }
+    private async createNewProduct(currProduct){
+        // Since we are saving the product for the first time we are going to create a productID
+        const id = crypto.randomBytes(16).toString("hex");
+        currProduct.productID = id;
+
+        // Create the product using the current product object
+        await this.Products.model.create(currProduct);
     }
     private async addToProductComparison(productRecord, currProduct) {
         // Check if the currProduct already exists in the productComparison array on the DB.

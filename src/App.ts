@@ -18,7 +18,7 @@ class App {
         this.middleware();
         this.routes();
         this.Products = new ProductModel(mongoDBConnection);
-        this.Customer = new CustomerModel(mongoDBConnection);
+        this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
         this.scrapeAllStores();
     }
@@ -50,7 +50,7 @@ class App {
         });
         
         router.get("/api/customer", async (req, res) => {
-            await this.Customer.retireveSaveForLater(res);
+            await this.Customer.retireveCustomer(res);
         });
 
         router.post("/api/save-for-later/", async(req, res) => {
@@ -58,9 +58,9 @@ class App {
         });
 
         router.get("/api/product/:productID", async (req, res) => {
-            const id = req.params.productID;
+            const productID = req.params.productID;
             // Call to product schema goes here
-            await this.Products.retrieveProductByID(res, id);
+            await this.Products.retrieveProductByID(res, productID);
         });
         this.expressApp.use("/", router);
     }
