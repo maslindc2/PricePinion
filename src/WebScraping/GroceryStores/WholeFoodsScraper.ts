@@ -192,6 +192,17 @@ class WholeFoodsScraper {
                     ".w-pie--product-tile__content > .bds--heading-5"
                 );
             }
+            // If the productPrice currently is a cent value i.e. 56¢ convert it back to $0.56
+            // Sometimes a productPrice is 56¢/lb so we will convert it to $0.56/lb
+            if(!productPrice.startsWith("$") && productPrice.endsWith("/lb")){
+                productPrice = parseFloat(productPrice.replace("¢", "").replace("/lb", ""));
+                productPrice = "$" + (productPrice/100).toFixed(2);
+                productPrice += "/lb";
+            // Othertimes it's just 56¢ and we convert it back to $0.56
+            }else if(!productPrice.startsWith("$")){
+                productPrice = parseFloat(productPrice.replace("¢", ""));
+                productPrice = "$" + (productPrice/100).toFixed(2);
+            }
             // If all fields are defined then we have successfully extracted product information
             // If any one of these variables are undefined then we failed to extract the product information.
             const productInfo: IProductInfo = {
