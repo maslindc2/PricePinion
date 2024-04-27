@@ -126,12 +126,26 @@ class QFCScraper {
                 ".kds-Link > .h-full > .kds-Image-img"
             );
 
-            // Extract the current product price using the current product cell and the class structure
-            // The class structure here is just class=kds-Price--alternate this is only used for the product price.
-            const productPrice = await extractorObj.extractFromValue(
+            // With QFC we want to extract the price per pound for an item if it exists. We first attempt to collect that.
+            // The price per pound for Kroger always follows the below pattern
+            const pricePerPoundRegex = /^\$[\d.]+\/lb$/;
+            // Attempt to extract the price per pound value and store it to productPrice
+            let productPrice;
+            productPrice = await extractorObj.extractTextContent(
                 product,
-                ".kds-Price--alternate"
+                "div > * >.kds-Text--s"
             );
+            // If the product price does not match the pattern then the span that displays price per pound does not exist and we need to collect
+            // the default price tag.
+            if(!pricePerPoundRegex.test(productPrice)){
+                // Extract the current product price using the current product cell and the class structure
+                // The class structure here is just class=kds-Price--alternate this is only used for the product price.
+                const priceValue = await extractorObj.extractFromValue(
+                    product,
+                    ".kds-Price--alternate"
+                );
+                productPrice = "$" + priceValue;
+            }
 
             // Extract the current product URL using the current product and targeting the same as product name
             // Kroger shortens the URL to just be p/product-id so we need to add the base url for the site.
