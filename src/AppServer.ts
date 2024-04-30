@@ -12,4 +12,5 @@ const mongoDBConnection = process.env.MONGODB_URI;
 
 const server = new App(mongoDBConnection).expressApp;
 server.listen(port);
+// Log what port we are listening on
 logger.info(`PricePinion Server Ready! Now listening on port: ${port}`);

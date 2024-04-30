@@ -143,7 +143,7 @@ class FredMeyerScraper {
             );
             // If the product price does not match the pattern then the span that displays price per pound does not exist and we need to collect
             // the default price tag.
-            if(!pricePerPoundRegex.test(productPrice)){
+            if (!pricePerPoundRegex.test(productPrice)) {
                 // Extract the current product price using the current product cell and the class structure
                 // The class structure here is just class=kds-Price--alternate this is only used for the product price.
                 const priceValue = await extractorObj.extractFromValue(

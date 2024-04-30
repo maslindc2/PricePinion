@@ -13,7 +13,7 @@ class CustomerModel {
     public constructor(DB_CONNECTION_STRING: string, Products: ProductModel) {
         this.dbConnectionString = DB_CONNECTION_STRING;
         this.createSchema();
-        // Since we need to store a product to the customer's save for later 
+        // Since we need to store a product to the customer's save for later
         // we need the ProductModel
         this.Products = Products;
         // Creating the Customer model and then purely for DEV PURPOSES
@@ -46,37 +46,40 @@ class CustomerModel {
         }
     }
 
-    public async createCustomer(){
+    public async createCustomer() {
         // Check if the customer model already exists in the DB
-        const query = this.model.findOne({customerName: "Customer Name"});
+        const query = this.model.findOne({ customerName: "Customer Name" });
         const customerRecord = await query.exec();
         // If the customer record does not exist then create it
-        if(!customerRecord){
+        if (!customerRecord) {
             const id = crypto.randomBytes(16).toString("hex");
             await this.model.create({
                 customerID: id,
                 customerName: "Customer Name",
-                customerEmail: "customer@customer.com"
+                customerEmail: "customer@customer.com",
             });
         }
-        
     }
-    public async saveComparisonForLater(req, res){
+    public async saveComparisonForLater(req, res) {
         const productID = req.body.productID;
         // Build the query for finding the requested product in the ProductsModel
         // Since this record will be stored to the customer's save for later array remove the _id and __v
         // If the customer remvoes this comparison later on we delete the record from save for later array.
-        const productQuery = this.Products.model.findOne({productID: productID}).select("-_id -__v");
-        
+        const productQuery = this.Products.model
+            .findOne({ productID: productID })
+            .select("-_id -__v");
+
         // Build the query for finding the customer we want to save the product comparison to
-        const customerQuery = this.model.findOne({customerName: "Customer Name"});
+        const customerQuery = this.model.findOne({
+            customerName: "Customer Name",
+        });
         try {
             // Execute the product query and store the productRecord
             const productRecord = await productQuery.exec();
             // Execute the customer query and store the customerRecord
             const customerRecord = await customerQuery.exec();
             // Push the product comparison to the customer's save for later array
-            customerRecord.saveForLater.push(productRecord)
+            customerRecord.saveForLater.push(productRecord);
             // Save the updated customer record to the DB
             await customerRecord.save();
             // Send response back
@@ -88,7 +91,9 @@ class CustomerModel {
     }
     public async retireveCustomer(res) {
         // Find get the customer's record and since this is an API endpoint remove the _id and __v fields
-        const query = this.model.findOne({customerName: "Customer Name"}).select("-_id -__v");
+        const query = this.model
+            .findOne({ customerName: "Customer Name" })
+            .select("-_id -__v");
         try {
             const customerRecord = await query.exec();
             res.json(customerRecord);
