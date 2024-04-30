@@ -152,6 +152,30 @@ class FredMeyerScraper {
                 );
                 productPrice = "$" + priceValue;
             }
+            
+            // Since some products utilize the same name with a different size we need to detect that an append it to the product name.
+            // This element is especially hard to target so we use the below attribute to try and get it. Sometimes it might pick up the price per pound
+            // Fortunately the product size takes precendence over price per pound.
+            //let productSize = await product.$eval(`span[data-testid="cart-page-item-sizing"]`, element => element.innerHTML);
+            let productSize = await extractorObj.extractTextContent(product, `span[data-testid="cart-page-item-sizing"]`);
+            // Test that the string does not match the price per pound element.
+            if(!pricePerPoundRegex.test(productSize)){
+                // Sometimes Kroger uses a non-breaking space character in HTML, we need to remove this garbage if it exists.
+                if(productSize.includes("&nbsp;")){
+                    const nbspRegex = /&nbsp;/g;
+                    productSize = productSize.replace(nbspRegex, "");
+                }
+                // Sometimes Kroger places a "|" in the product size, not sure why it's there, no idea why it doesn't render on the page, but it's there...
+                if(productSize.includes("|")){
+                    const barRegex = /\|/g;
+                    productSize = productSize.replace(barRegex, "");
+                }
+                console.log(productSize);
+            }else{
+                // If we got a price per pound then we set it to a blank string.
+                productSize = "";
+            }
+            
 
             // Extract the current product URL using the current product and targeting the same as product name
             // Kroger shortens the URL to just be p/product-id so we need to add the base url for the site.

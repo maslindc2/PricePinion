@@ -104,7 +104,6 @@ class ProductModel {
             }
         } catch (error) {
             logger.error(error);
-            return false;
         }
     }
 }
