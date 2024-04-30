@@ -50,10 +50,9 @@ class ProductProcessor {
     private async processProduct(currProduct) {
         try {
             // Get the current product from the DB, this will return a record if the product exists, or it will return null if it doesn't
-            const productRecord =
-                await this.Products.retireveProductByName(
-                    currProduct.productName
-                );
+            const productRecord = await this.Products.retireveProductByName(
+                currProduct.productName
+            );
             // If product does exist in the database
             if (productRecord) {
                 // Check if it's at the current store, if it does we update the product's information
@@ -80,9 +79,7 @@ class ProductProcessor {
                 }
             }
         } catch (error) {
-            logger.error(
-                `Object creation/update failed! Error: ${error}`
-            );
+            logger.error(`Object creation/update failed! Error: ${error}`);
         }
     }
     /**
