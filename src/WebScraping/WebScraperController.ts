@@ -12,6 +12,7 @@ class WebScraperController {
     public qfcScraperObj: QFCScraper;
     public wfScraperObj: WholeFoodsScraper;
     constructor() {
+        // Initalizing the scraper objects
         this.fmScraperObj = new FredMeyerScraper();
         this.qfcScraperObj = new QFCScraper();
         this.wfScraperObj = new WholeFoodsScraper();
@@ -21,7 +22,6 @@ class WebScraperController {
     public async runWebScrapers(): Promise<Object> {
         // Logging that we are running the Webscraper controller
         logger.debug("Reached WebScraper Controller");
-
         // Runs Fred Meyer's Scraper and stores the results as an object
         const fredMeyerScrapeResult: Object =
             await this.fmScraperObj.fredMeyerScraper();

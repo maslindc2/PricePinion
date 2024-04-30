@@ -4,7 +4,6 @@ const fs = require("fs");
 // Read each of the JSON files containing data from mongo
 const productsCollectionAsJSON = fs.readFileSync("pricepinion.products.json");
 
-
 //Parse all the JSON files containing the data we are going to insert
 const productsObj = JSON.parse(productsCollectionAsJSON);
 
