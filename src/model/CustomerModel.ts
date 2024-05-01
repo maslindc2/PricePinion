@@ -89,7 +89,7 @@ class CustomerModel {
             res.sendStatus(500);
         }
     }
-    public async retireveCustomer(res) {
+    public async retrieveSaveForLater(res) {
         // Find get the customer's record and since this is an API endpoint remove the _id and __v fields
         const query = this.model
             .findOne({ customerName: "Customer Name" })
