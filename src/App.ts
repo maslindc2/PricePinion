@@ -52,12 +52,12 @@ class App {
             await this.Products.retrieveAllProducts(res);
         });
 
-        router.get("/api/customer", async (req, res) => {
+        router.get("/api/save-for-later", async (req, res) => {
             // Retreive a specific customer
-            await this.Customer.retireveCustomer(res);
+            await this.Customer.retrieveSaveForLater(res);
         });
 
-        router.post("/api/save-for-later/", async (req, res) => {
+        router.post("/api/customer/save-for-later", async (req, res) => {
             // Call save product comparison for later function
             await this.Customer.saveComparisonForLater(req, res);
         });
