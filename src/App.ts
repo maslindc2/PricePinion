@@ -69,6 +69,15 @@ class App {
                 await this.Customer.deleteAllProductsFromSFL(req, res);
             }
         );
+        
+        router.delete(
+            "/api/customer/delete-one-product-from-sfl/:productID",
+            async (req, res) => {
+                const productID = req.params.productID;
+                // Call save product comparison for later function
+                await this.Customer.deleteOneProductFromSFL(res, productID);
+            }
+        );
 
         router.get("/api/product/:productID", async (req, res) => {
             // Store the productID from the request parameters

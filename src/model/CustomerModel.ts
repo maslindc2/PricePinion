@@ -148,5 +148,26 @@ class CustomerModel {
             res.sendStatus(500);
         }
     }
+
+    public async deleteOneProductFromSFL(res, productID) {
+        // This query is used to retrieve the customer model
+        const query = this.model.findOne({ customerName: "Customer Name" });
+        try {
+            // Executes the customer record query
+            const customerRecord = await query.exec();
+            // Filter out the product that matches the request productID and overwrite the save for later array.
+            customerRecord.saveForLater = customerRecord.saveForLater.filter((productComparisonInSFL) => productComparisonInSFL.productID !== productID);
+            // Saves the customer record to the DB
+            await customerRecord.save();
+            // Sends a response stating that the operation was successful.
+            res.status(200).json({
+                message:
+                    "The Specific Product Comparisons has been removed from customer's save for later!",
+            });
+        } catch (error) {
+            logger.error(error);
+            res.sendStatus(500);
+        }
+    }
 }
 export { CustomerModel };
