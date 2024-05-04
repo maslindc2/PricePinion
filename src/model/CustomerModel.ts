@@ -78,15 +78,29 @@ class CustomerModel {
             const productRecord = await productQuery.exec();
             // Execute the customer query and store the customerRecord
             const customerRecord = await customerQuery.exec();
-            // Push the product comparison to the customer's save for later array
-            customerRecord.saveForLater.push(productRecord);
-            // Save the updated customer record to the DB
-            await customerRecord.save();
-            // Send response back
-            res.sendStatus(204);
+            // Check if the product comparison already exists in save for later.
+            if(this.isProductComparisonInSFL(productRecord, customerRecord)){
+                res.status(409).json({message: "Product Comparison Already Exists In Customer's Save For Later!"});
+            }else{
+                // Push the product comparison to the customer's save for later array
+                customerRecord.saveForLater.push(productRecord);
+                // Save the updated customer record to the DB
+                await customerRecord.save();
+                // Send response back
+                res.status(201).json({message: "Product Comparison Added Successfully."});
+            }
+            
         } catch (error) {
             logger.error(error);
             res.sendStatus(500);
+        }
+    }
+    private isProductComparisonInSFL(productRecord: any, customerRecord: any): boolean{
+        const object = customerRecord.saveForLater.find(productComparisonInSFL => productComparisonInSFL.productID === productRecord.productID);
+        if(object){
+            return true;
+        }else{
+            return false;
         }
     }
     public async retrieveSaveForLater(res) {
