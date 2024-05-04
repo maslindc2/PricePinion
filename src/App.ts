@@ -53,7 +53,7 @@ class App {
         });
 
         router.get("/api/save-for-later", async (req, res) => {
-            // Retreive a specific customer
+            // Retrieve a specific customer
             await this.Customer.retrieveSaveForLater(res);
         });
 
@@ -79,9 +79,9 @@ class App {
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
         // Creating a scraperController object.
-        const scraperContoller = new WebScraperController();
+        const scraperController = new WebScraperController();
         // Run the webscraper and store object results.
-        const scrapeResults = await scraperContoller.runWebScrapers();
+        const scrapeResults = await scraperController.runWebScrapers();
         // Creating an object productProcessor.
         const productProcessor = new ProductProcessor(this.Products);
         // Process and update the products on the DB using the results from the web scraper.
