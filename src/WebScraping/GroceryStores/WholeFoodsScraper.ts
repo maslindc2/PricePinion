@@ -194,14 +194,14 @@ class WholeFoodsScraper {
             }
             // If the productPrice currently is a cent value i.e. 56¢ convert it back to $0.56
             // Sometimes a productPrice is 56¢/lb so we will convert it to $0.56/lb
-            if (!productPrice.startsWith("$") && productPrice.endsWith("/lb")) {
+            if (productPrice.includes("¢") && productPrice.includes("/lb")) {
                 productPrice = parseFloat(
                     productPrice.replace("¢", "").replace("/lb", "")
                 );
                 productPrice = "$" + (productPrice / 100).toFixed(2);
                 productPrice += "/lb";
                 // Other times it's just 56¢ and we convert it back to $0.56
-            } else if (!productPrice.startsWith("$")) {
+            } else if (productPrice.endsWith("¢")) {
                 productPrice = parseFloat(productPrice.replace("¢", ""));
                 productPrice = "$" + (productPrice / 100).toFixed(2);
             }
