@@ -20,7 +20,7 @@ class App {
         this.Products = new ProductModel(mongoDBConnection);
         this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
-        this.scrapeAllStores();
+        ////this.scrapeAllStores();
     }
 
     // Configure the express middleware
@@ -60,6 +60,11 @@ class App {
         router.post("/api/customer/save-for-later", async (req, res) => {
             // Call save product comparison for later function
             await this.Customer.saveComparisonForLater(req, res);
+        });
+
+        router.delete("/api/customer/delete-all-products-from-sfl", async (req, res) => {
+            // Call save product comparison for later function
+            await this.Customer.deleteAllProductsFromSFL(req, res);
         });
 
         router.get("/api/product/:productID", async (req, res) => {

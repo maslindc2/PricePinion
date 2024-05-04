@@ -101,5 +101,23 @@ class CustomerModel {
             logger.error(error);
         }
     }
+    public async deleteAllProductsFromSFL(req, res){
+        // This query is used to retrieve the customer model
+        const query = this.model
+            .findOne({ customerName: "Customer Name" });
+        try {
+            // Executes the customer record query
+            const customerRecord = await query.exec();
+            // Reassigns the save for later array to an empty array
+            customerRecord.saveForLater = [];
+            // Saves the customer record to the DB
+            await customerRecord.save();
+            // Sends a response
+            res.status(200).json({message: "All Product Comparisons in Save For Later were Removed!"});
+        } catch (error) {
+            logger.error(error);
+            res.sendStatus(500);
+        }
+    }
 }
 export { CustomerModel };
