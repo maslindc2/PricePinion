@@ -53,7 +53,7 @@ class App {
         });
 
         router.get("/api/save-for-later", async (req, res) => {
-            // Retreive a specific customer
+            // Retrieve a specific customer
             await this.Customer.retrieveSaveForLater(res);
         });
 
@@ -61,6 +61,14 @@ class App {
             // Call save product comparison for later function
             await this.Customer.saveComparisonForLater(req, res);
         });
+
+        router.delete(
+            "/api/customer/delete-all-products-from-sfl",
+            async (req, res) => {
+                // Call save product comparison for later function
+                await this.Customer.deleteAllProductsFromSFL(req, res);
+            }
+        );
 
         router.get("/api/product/:productID", async (req, res) => {
             // Store the productID from the request parameters
@@ -74,9 +82,9 @@ class App {
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
         // Creating a scraperController object.
-        const scraperContoller = new WebScraperController();
+        const scraperController = new WebScraperController();
         // Run the webscraper and store object results.
-        const scrapeResults = await scraperContoller.runWebScrapers();
+        const scrapeResults = await scraperController.runWebScrapers();
         // Creating an object productProcessor.
         const productProcessor = new ProductProcessor(this.Products);
         // Process and update the products on the DB using the results from the web scraper.

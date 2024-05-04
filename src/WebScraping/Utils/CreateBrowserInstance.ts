@@ -9,7 +9,7 @@ class BrowserInstance {
      * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
      */
     public async createBrowserInstance(runHeadless: boolean): Promise<Browser> {
-        // Tell the puppeteer object to use the Stealth plugin to avoid sites decting that we are scraping them.
+        // Tell the puppeteer object to use the Stealth plugin to avoid sites detecting that we are scraping them.
         puppeteer.use(StealthPlugin());
         // Create a browser instance
         const browser = await puppeteer.launch({ headless: runHeadless });

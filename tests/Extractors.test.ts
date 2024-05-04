@@ -39,7 +39,7 @@ describe("Extract product url from a link", () => {
 
         // Close the browser instance as we have extracted the href from the productStub we provided.
         await browserInstance.close();
-        // Expect the extracted url to contian our base url and our fake product href from our fake link we made earlier.
+        // Expect the extracted url to contain our base url and our fake product href from our fake link we made earlier.
         expect(fakeProductURL).to.equal("https://fredmeyer.com/p/fake-product");
     });
     it("fails to locate product returns null", async () => {
@@ -90,7 +90,7 @@ describe("Extract product name from an aria label", () => {
         );
         // Close the browser instance as we have extracted the aria label from the productStub we provided.
         await browserInstance.close();
-        // Expect the extracted aria label to contian our fake product name.
+        // Expect the extracted aria label to contain our fake product name.
         expect(fakeProductAriaLabel).to.equal("Fake Product Name");
     });
     it("fails to locate product returns null", async () => {
@@ -146,7 +146,7 @@ describe("Extract product image from an image tag", () => {
         // Close the browser instance as we have extracted the href from the productStub we provided.
         await browserInstance.close();
 
-        // Expect the extracted url to contian our fake image url.
+        // Expect the extracted url to contain our fake image url.
         expect(fakeProductImageSrc).to.equal(
             "https://www.kroger.com/product/images/fake-product-image"
         );
@@ -201,7 +201,7 @@ describe("Extract inner text from a span tag", () => {
         // Close the browser instance as we have extracted the href from the productStub we provided.
         await browserInstance.close();
 
-        // Expect the extracted url to contian our fake image url.
+        // Expect the extracted url to contain our fake image url.
         expect(fakeSpanInnerText).to.equal("$5.99");
     });
     it("fails to locate product returns null", async () => {
@@ -249,7 +249,7 @@ describe("Extract product price from a value attribute", () => {
         );
         // Close the browser instance as we have extracted the value attribute from the productStub we provided.
         await browserInstance.close();
-        // Expect the extracted value attribute to contian our fake product price.
+        // Expect the extracted value attribute to contain our fake product price.
         expect(fakeDataTagValue).to.equal("5.99");
     });
     it("fails to locate product returns null", async () => {

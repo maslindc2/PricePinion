@@ -12,7 +12,7 @@ class WebScraperController {
     public qfcScraperObj: QFCScraper;
     public wfScraperObj: WholeFoodsScraper;
     constructor() {
-        // Initalizing the scraper objects
+        // Initializing the scraper objects
         this.fmScraperObj = new FredMeyerScraper();
         this.qfcScraperObj = new QFCScraper();
         this.wfScraperObj = new WholeFoodsScraper();

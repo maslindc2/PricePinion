@@ -6,7 +6,7 @@ import { Browser } from "puppeteer";
 /**
  * Each site must have it's own specialized scrape site function.
  * To promote testability and good coding practices we need to create an interface
- * for the scrapesite function. This allows us to pass each scraper's scapesite function
+ * for the scrapeSite function. This allows us to pass each scraper's scapeSite function
  * to our scrape multiple urls function.
  * @returns scraped information from products or null if it fails to scrape anything.
  */
@@ -49,7 +49,7 @@ class ScraperUtils {
                 let browserInstance;
                 try {
                     // The env variable HEADLESS sets if puppeteer should run headless (no chrome windows opening) or
-                    // headful (chrome windows opening and visible to the developer).
+                    // headfull (chrome windows opening and visible to the developer).
                     // Casting a string "false" to a boolean becomes true. So we use the below to avoid this.
                     // IN PRODUCTION AND CI THIS MUST BE TRUE
                     let runHeadless;

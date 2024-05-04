@@ -11,9 +11,9 @@ describe("createBrowserInstance", () => {
     it("creates a headless browser that has a headless agent", async () => {
         // Creates a browser instance with headless set to true
         const browser = await browserInstanceObj.createBrowserInstance(true);
-        // Expect the browser isntance to exist
+        // Expect the browser instance to exist
         expect(browser).to.exist;
-        // Check that the constructur name is CdpBrowser which is the type used for StealthPlugin
+        // Check that the constructor name is CdpBrowser which is the type used for StealthPlugin
         expect(browser.constructor.name).to.equal("CdpBrowser");
         // Get the browser agent
         const browserConfig = await browser.userAgent();

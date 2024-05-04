@@ -64,7 +64,7 @@ class CustomerModel {
         const productID = req.body.productID;
         // Build the query for finding the requested product in the ProductsModel
         // Since this record will be stored to the customer's save for later array remove the _id and __v
-        // If the customer remvoes this comparison later on we delete the record from save for later array.
+        // If the customer removes this comparison later on we delete the record from save for later array.
         const productQuery = this.Products.model
             .findOne({ productID: productID })
             .select("-_id -__v");
@@ -126,6 +126,26 @@ class CustomerModel {
             res.json(customerRecord);
         } catch (error) {
             logger.error(error);
+        }
+    }
+    public async deleteAllProductsFromSFL(req, res) {
+        // This query is used to retrieve the customer model
+        const query = this.model.findOne({ customerName: "Customer Name" });
+        try {
+            // Executes the customer record query
+            const customerRecord = await query.exec();
+            // Reassigns the save for later array to an empty array
+            customerRecord.saveForLater = [];
+            // Saves the customer record to the DB
+            await customerRecord.save();
+            // Sends a response stating that the operation was successful.
+            res.status(200).json({
+                message:
+                    "All Product Comparisons in Save For Later were Removed!",
+            });
+        } catch (error) {
+            logger.error(error);
+            res.sendStatus(500);
         }
     }
 }

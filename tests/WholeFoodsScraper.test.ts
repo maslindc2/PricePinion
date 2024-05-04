@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test Wholefoods scraper", async () => {
-    it("scrapes all urls for Wholefoods, returns an object with scraped products, all object valus are strings", async () => {
+    it("scrapes all urls for Wholefoods, returns an object with scraped products, all object values are strings", async () => {
         const wfScraperObj = new WholeFoodsScraper();
         // Runs the Wholefoods Scraper and stores the scraped products
         const scrapeResults = await wfScraperObj.wholeFoodsScraper();

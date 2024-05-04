@@ -13,7 +13,7 @@ class ProductProcessor {
         this.Products = Products;
     }
     /**
-     * This funciton is responsible for processing the scrape results from our web scraper.
+     * This function is responsible for processing the scrape results from our web scraper.
      * @param scrapeResults this is the scrape results object that is created from our web scraper.
      */
     public async processScrapeResults(scrapeResults) {
@@ -39,7 +39,7 @@ class ProductProcessor {
     }
     /**
      * This function is responsible for either creating or adding a product to the productComparison array.
-     * We first see if the current product exists in the database by retireve the product by name.
+     * We first see if the current product exists in the database by retrieve the product by name.
      * If the product exists in the database, then we need to see if the product exists in the db at the current store.
      * -- If the product is oranges, and oranges are already in the DB at Fred Meyer, but we are currently looking at oranges at QFC,
      *    then we add the current product to the Oranges at Fred Meyer's product comparison array.
@@ -50,7 +50,7 @@ class ProductProcessor {
     private async processProduct(currProduct) {
         try {
             // Get the current product from the DB, this will return a record if the product exists, or it will return null if it doesn't
-            const productRecord = await this.Products.retireveProductByName(
+            const productRecord = await this.Products.retrieveProductByName(
                 currProduct.productName
             );
             // If product does exist in the database
@@ -97,7 +97,7 @@ class ProductProcessor {
     }
     /**
      * This function is responsible for adding a product to an existing product's productComparison field.
-     * Above we checked if the current product exists in the databse. If we call this function that means the product exists
+     * Above we checked if the current product exists in the database. If we call this function that means the product exists
      * in the DB but it's not at the current store. In other words we found a product to compare.
      * We add it to the existing product's product comparison array.
      * @param productRecord This is the product that currently exists in the DB.

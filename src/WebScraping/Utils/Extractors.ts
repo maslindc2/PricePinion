@@ -1,6 +1,6 @@
 /**
  * Here we export all the various information extractors we will use for the various websites.
- * Consits of Product Image, Product link extractor, and AriaLabel extractors.
+ * Consists of Product Image, Product link extractor, and AriaLabel extractors.
  */
 import { ElementHandle } from "puppeteer";
 
@@ -46,7 +46,7 @@ class Extractors {
         }
     }
     /**
-     * This function is resonsible for extracting information from a Tag's AriaLabel.
+     * This function is responsible for extracting information from a Tag's AriaLabel.
      * AriaLabel's contain product names and prices on Kroger sites so we can reuse this function for both.
      * @param product This is the individual product cell
      * @param classStructure This is the class structure of the element we wish to extract.
@@ -64,12 +64,12 @@ class Extractors {
         }
     }
     /**
-     * This function is resonsible for extracting information from a Tag's text content (a.k.a the part between the open tag and closed tag).
+     * This function is responsible for extracting information from a Tag's text content (a.k.a the part between the open tag and closed tag).
      * For some sites prices and product names are shown between tag's. The reason we can't do this for Kroger is they shove other tags into it
-     * which causes issues with extacting information.
+     * which causes issues with extracting information.
      * @param product This is the individual product cell
      * @param classStructure This is the class structure of the element we wish to extract.
-     * @returns The text conent from an element. Returns null if the element wasn't found
+     * @returns The text content from an element. Returns null if the element wasn't found
      */
     public async extractTextContent(
         product: ElementHandle,
@@ -83,7 +83,7 @@ class Extractors {
         }
     }
     /**
-     * This function is resonsible for extracting information from a tag's data attribute.
+     * This function is responsible for extracting information from a tag's data attribute.
      * For some sites prices and product names are stored in the data attribute.
      * @param product This is the individual product cell
      * @param classStructure This is the class structure of the element we wish to extract.
