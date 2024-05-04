@@ -62,10 +62,13 @@ class App {
             await this.Customer.saveComparisonForLater(req, res);
         });
 
-        router.delete("/api/customer/delete-all-products-from-sfl", async (req, res) => {
-            // Call save product comparison for later function
-            await this.Customer.deleteAllProductsFromSFL(req, res);
-        });
+        router.delete(
+            "/api/customer/delete-all-products-from-sfl",
+            async (req, res) => {
+                // Call save product comparison for later function
+                await this.Customer.deleteAllProductsFromSFL(req, res);
+            }
+        );
 
         router.get("/api/product/:productID", async (req, res) => {
             // Store the productID from the request parameters
