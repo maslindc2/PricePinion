@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test Fred Meyer scraper", async () => {
-    it("scrapes all urls for Fred Meyer, returns an object with scraped products, all object valus are strings", async () => {
+    it("scrapes all urls for Fred Meyer, returns an object with scraped products, all object values are strings", async () => {
         const fmScraperObj = new FredMeyerScraper();
         // Runs the Fred Meyer Scraper and stores the scraped products
         const scrapeResults = await fmScraperObj.fredMeyerScraper();

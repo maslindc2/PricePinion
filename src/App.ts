@@ -20,7 +20,7 @@ class App {
         this.Products = new ProductModel(mongoDBConnection);
         this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
-        this.scrapeAllStores();
+        ////this.scrapeAllStores();
     }
 
     // Configure the express middleware
@@ -42,24 +42,47 @@ class App {
     private routes(): void {
         const router = express.Router();
         router.get("/", (req, res) => {
+            // This is the default landing page used only for DEV purposes for now
+            // When we move to production this route will be removed.
             res.send("Welcome to PricePinion Server!");
         });
-        
+
         router.get("/api/products", async (req, res) => {
+            // Retrieve all products from the DB
             await this.Products.retrieveAllProducts(res);
         });
-        
-        router.get("/api/customer", async (req, res) => {
-            await this.Customer.retireveCustomer(res);
+
+        router.get("/api/save-for-later", async (req, res) => {
+            // Retrieve a specific customer
+            await this.Customer.retrieveSaveForLater(res);
         });
 
-        router.post("/api/save-for-later/", async(req, res) => {
+        router.post("/api/customer/save-for-later", async (req, res) => {
+            // Call save product comparison for later function
             await this.Customer.saveComparisonForLater(req, res);
         });
 
+        router.delete(
+            "/api/customer/delete-all-products-from-sfl",
+            async (req, res) => {
+                // Call save product comparison for later function
+                await this.Customer.deleteAllProductsFromSFL(req, res);
+            }
+        );
+
+        router.delete(
+            "/api/customer/delete-one-product-from-sfl/:productID",
+            async (req, res) => {
+                const productID = req.params.productID;
+                // Call save product comparison for later function
+                await this.Customer.deleteOneProductFromSFL(res, productID);
+            }
+        );
+
         router.get("/api/product/:productID", async (req, res) => {
+            // Store the productID from the request parameters
             const productID = req.params.productID;
-            // Call to product schema goes here
+            // Retrieve the specific product by productID
             await this.Products.retrieveProductByID(res, productID);
         });
         this.expressApp.use("/", router);
@@ -67,18 +90,14 @@ class App {
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
-        // Creating a scraperController object
-        const scraperContoller = new WebScraperController();
-        // Run the webscraper and store object results
-        const scrapeResults = await scraperContoller.runWebScrapers();
-        // Creating an object productProcessor
+        // Creating a scraperController object.
+        const scraperController = new WebScraperController();
+        // Run the webscraper and store object results.
+        const scrapeResults = await scraperController.runWebScrapers();
+        // Creating an object productProcessor.
         const productProcessor = new ProductProcessor(this.Products);
-        // Store the results object to JSON
-        ////productProcessor.resultToJSON(scrapeResults);
-        // Read scrape results from JSON
-        ////const scrapeResults = productProcessor.jsonResultsToObject();
-        // Process and update the products on the DB using the results from the web scraper
-        productProcessor.updateProducts(scrapeResults);
+        // Process and update the products on the DB using the results from the web scraper.
+        productProcessor.processScrapeResults(scrapeResults);
     }
 }
 export { App };

@@ -1,6 +1,6 @@
 /**
  * This is the Fred Meyer web scraper which is responsible for scraping all of the products from Fred Meyer.
- * We utilize a few libraries called Puppeteeer and Puppeteer Stealth.
+ * We utilize a few libraries called Puppeteer and Puppeteer Stealth.
  * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
  */
 import { logger } from "@logger";
@@ -51,7 +51,7 @@ class FredMeyerScraper {
             while (loadMoreResultsExists) {
                 try {
                     // Wait for CLICK_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
-                    // This is tied to network speed so somtimes Fred Meyer response times are slow sometimes they are fast.
+                    // This is tied to network speed so sometimes Fred Meyer response times are slow sometimes they are fast.
                     // Fred Meyer is sometimes slow with rendering the buttons.
                     await this.scraperUtilObj
                         .sleepBeforeOperation(
@@ -143,7 +143,7 @@ class FredMeyerScraper {
             );
             // If the product price does not match the pattern then the span that displays price per pound does not exist and we need to collect
             // the default price tag.
-            if(!pricePerPoundRegex.test(productPrice)){
+            if (!pricePerPoundRegex.test(productPrice)) {
                 // Extract the current product price using the current product cell and the class structure
                 // The class structure here is just class=kds-Price--alternate this is only used for the product price.
                 const priceValue = await extractorObj.extractFromValue(

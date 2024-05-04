@@ -5,7 +5,7 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 describe("Test QFC scraper", async () => {
-    it("scrapes all urls for QFC, returns an object with scraped products, all object valus are strings", async () => {
+    it("scrapes all urls for QFC, returns an object with scraped products, all object values are strings", async () => {
         const qfcScraperObj = new QFCScraper();
         // Runs the QFC Scraper and stores the scraped products
         const scrapeResults = await qfcScraperObj.qfcScraper();

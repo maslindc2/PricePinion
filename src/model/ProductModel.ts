@@ -18,7 +18,7 @@ class ProductModel {
             {
                 productID: {
                     type: String,
-                    index: true
+                    index: true,
                 },
                 productName: String,
                 storeName: String,
@@ -38,11 +38,11 @@ class ProductModel {
             logger.error(error);
         }
     }
-    
+
     /** Below are queries used for the Frontend */
 
     // Retrieves all products in the database
-    public async retrieveAllProducts(res: any){
+    public async retrieveAllProducts(res: any) {
         // Find all products in the DB, since this is an API endpoint omit the default MongoDB _id field
         // and the default versioning field from the response.
         const query = this.model.find({}).select("-_id -__v");
@@ -55,12 +55,14 @@ class ProductModel {
             logger.error(error);
         }
     }
-    // Retireves only a specific product that matches the product id from the database
-    public async retrieveProductByID(res: any, productID: any){
-        // Find a product in the db that matches the request, 
+    // Retrieves only a specific product that matches the product id from the database
+    public async retrieveProductByID(res: any, productID: any) {
+        // Find a product in the db that matches the request,
         // since this is an API endpoint omit the default MongoDB _id field and the default versioning field from the response.
-        const query = this.model.findOne({productID: productID}).select("-_id -__v");
-        
+        const query = this.model
+            .findOne({ productID: productID })
+            .select("-_id -__v");
+
         try {
             const products = await query.exec();
             res.json(products);
@@ -75,7 +77,7 @@ class ProductModel {
     // This query is used for getting a product record from the DB
     // If it exists product processor will either add a product to the productComparison array
     // or update it.  If the product record does not exist it will return null
-    public async retireveProductByName(productName: string) {
+    public async retrieveProductByName(productName: string) {
         const query = this.model.findOne({ productName: productName });
         try {
             const productRecord = await query.exec();
@@ -83,7 +85,7 @@ class ProductModel {
         } catch (error) {
             logger.error(error);
         }
-    }    
+    }
     // This query is used for checking if a specific product and store is located in the DB
     // If it is, then we update that product, if it isn't then ProductProcessor will add the current product
     // to the productComparison array.

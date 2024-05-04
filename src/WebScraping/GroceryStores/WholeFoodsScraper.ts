@@ -1,6 +1,6 @@
 /**
  * This is the Whole Foods web scraper which is responsible for scraping all of the products from Whole Foods.
- * We utilize a few libraries called Puppeteeer and Puppeteer Stealth.
+ * We utilize a few libraries called Puppeteer and Puppeteer Stealth.
  * Puppeteer Stealth is used to hide the fact that we are scraping their website headlessly.
  */
 import { logger } from "@logger";
@@ -50,7 +50,7 @@ class WholeFoodsScraper {
         // When Whole Foods loads it will prompt for a store location. This appears half the time
         // to avoid messing up the scraping job we attempt to look for it and close it.
         try {
-            // Attempt to close the location prompt diaglogue box if it's unable to click close then it doesn't exist
+            // Attempt to close the location prompt dialogue box if it's unable to click close then it doesn't exist
             // Wait for the close button to appear and then close it
             await page
                 .waitForSelector(
@@ -111,7 +111,7 @@ class WholeFoodsScraper {
             while (loadMoreResultsExists) {
                 try {
                     // Wait for SCRAPE_DELAY ms (or if env is undefined wait 500ms) before clicking the next button.
-                    // This is tied to network speed so somtimes Whole Foods response times are slow sometimes they are fast.
+                    // This is tied to network speed so sometimes Whole Foods response times are slow sometimes they are fast.
                     await this.scraperUtilObj
                         .sleepBeforeOperation(
                             parseInt(<string>process.env.SCRAPE_DELAY) || 3000
@@ -191,6 +191,19 @@ class WholeFoodsScraper {
                     product,
                     ".w-pie--product-tile__content > .bds--heading-5"
                 );
+            }
+            // If the productPrice currently is a cent value i.e. 56¢ convert it back to $0.56
+            // Sometimes a productPrice is 56¢/lb so we will convert it to $0.56/lb
+            if (!productPrice.startsWith("$") && productPrice.endsWith("/lb")) {
+                productPrice = parseFloat(
+                    productPrice.replace("¢", "").replace("/lb", "")
+                );
+                productPrice = "$" + (productPrice / 100).toFixed(2);
+                productPrice += "/lb";
+                // Other times it's just 56¢ and we convert it back to $0.56
+            } else if (!productPrice.startsWith("$")) {
+                productPrice = parseFloat(productPrice.replace("¢", ""));
+                productPrice = "$" + (productPrice / 100).toFixed(2);
             }
             // If all fields are defined then we have successfully extracted product information
             // If any one of these variables are undefined then we failed to extract the product information.
