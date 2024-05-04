@@ -85,7 +85,7 @@ class CustomerModel {
                         "Product Comparison Already Exists In Customer's Save For Later!",
                 });
             } else {
-                // Push the product comparison to the customer's save for later array
+                // If the product does not exist in the customer's SFL array, push it to the SFL array
                 customerRecord.saveForLater.push(productRecord);
                 // Save the updated customer record to the DB
                 await customerRecord.save();
@@ -103,13 +103,16 @@ class CustomerModel {
         productRecord: any,
         customerRecord: any
     ): boolean {
+        // Find the product record that matches the productID in the customer's SFL array
         const object = customerRecord.saveForLater.find(
             (productComparisonInSFL) =>
                 productComparisonInSFL.productID === productRecord.productID
         );
+        // If it returns an object then we have the comparison already saved.
         if (object) {
             return true;
         } else {
+            // If it doesn't return an object, then we don't have the comparison already saved.
             return false;
         }
     }
