@@ -155,7 +155,7 @@ class FredMeyerScraper {
             
             // Since some products utilize the same name with a different size we need to detect that an append it to the product name.
             // This element is especially hard to target so we use the below attribute to try and get it. Sometimes it might pick up the price per pound
-            // Fortunately the product size takes precendence over price per pound.
+            // Fortunately the product size takes precedence over price per pound.
             //let productSize = await product.$eval(`span[data-testid="cart-page-item-sizing"]`, element => element.innerHTML);
             let productSize = await extractorObj.extractTextContent(product, `span[data-testid="cart-page-item-sizing"]`);
             // Test that the string does not match the price per pound element.
