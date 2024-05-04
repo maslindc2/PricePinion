@@ -156,7 +156,10 @@ class CustomerModel {
             // Executes the customer record query
             const customerRecord = await query.exec();
             // Filter out the product that matches the request productID and overwrite the save for later array.
-            customerRecord.saveForLater = customerRecord.saveForLater.filter((productComparisonInSFL) => productComparisonInSFL.productID !== productID);
+            customerRecord.saveForLater = customerRecord.saveForLater.filter(
+                (productComparisonInSFL) =>
+                    productComparisonInSFL.productID !== productID
+            );
             // Saves the customer record to the DB
             await customerRecord.save();
             // Sends a response stating that the operation was successful.

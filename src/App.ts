@@ -69,7 +69,7 @@ class App {
                 await this.Customer.deleteAllProductsFromSFL(req, res);
             }
         );
-        
+
         router.delete(
             "/api/customer/delete-one-product-from-sfl/:productID",
             async (req, res) => {
