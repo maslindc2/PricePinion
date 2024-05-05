@@ -20,7 +20,7 @@ class App {
         this.Products = new ProductModel(mongoDBConnection);
         this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
-        this.scrapeAllStores();
+        ////this.scrapeAllStores();
     }
 
     // Configure the express middleware
