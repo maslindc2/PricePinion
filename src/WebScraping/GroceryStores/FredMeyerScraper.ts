@@ -121,7 +121,7 @@ class FredMeyerScraper {
             // Extract the current product name using the current product and the class structure
             // The class structure for product name always has the parent tag with a class="mb-4" and a child with class="kds-link"
             // Why not just target kds-link? This class is reused again throughout for other elements so we need to follow this structure.
-            const productName = await extractorObj.extractFromAria(
+            let productName = await extractorObj.extractFromAria(
                 product,
                 ".mb-4 > .kds-Link"
             );
@@ -159,7 +159,7 @@ class FredMeyerScraper {
             //let productSize = await product.$eval(`span[data-testid="cart-page-item-sizing"]`, element => element.innerHTML);
             let productSize = await extractorObj.extractTextContent(product, `span[data-testid="cart-page-item-sizing"]`);
             // Test that the string does not match the price per pound element.
-            if(!pricePerPoundRegex.test(productSize)){
+            if(productSize && !pricePerPoundRegex.test(productSize)){
                 // Sometimes Kroger uses a non-breaking space character in HTML, we need to remove this garbage if it exists.
                 if(productSize.includes("&nbsp;")){
                     const nbspRegex = /&nbsp;/g;
@@ -170,7 +170,13 @@ class FredMeyerScraper {
                     const barRegex = /\|/g;
                     productSize = productSize.replace(barRegex, "");
                 }
-                console.log(productSize);
+                // If the product size is simply 1 count we remove it as Kroger uses this on blatantly obvious items
+                if(productSize === "1 ct"){
+                    productSize = "";    
+                }else{
+                    // Otherwise we can add the count to the product name
+                    productName +=  ", " + productSize;
+                }
             }else{
                 // If we got a price per pound then we set it to a blank string.
                 productSize = "";
