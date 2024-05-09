@@ -1,5 +1,5 @@
 {
-    "name": "webscrape-workbench",
+    "name": "pricepinion-backend",
     "version": "1.2.0",
     "description": "This is the webscraper we will be using for PricePinion.",
     "main": "AppServer.js",

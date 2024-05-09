@@ -169,7 +169,7 @@ class QFCScraper {
                     productSize = "";    
                 }else{
                     // Otherwise we can add the count to the product name
-                    productName +=  ", " + productSize;
+                    productName +=  ", " + productSize.trim()
                 }
             }else{
                 // If we got a price per pound then we set it to a blank string.
