@@ -121,7 +121,7 @@ class FredMeyerScraper {
             // Extract the current product name using the current product and the class structure
             // The class structure for product name always has the parent tag with a class="mb-4" and a child with class="kds-link"
             // Why not just target kds-link? This class is reused again throughout for other elements so we need to follow this structure.
-            const productName = await extractorObj.extractFromAria(
+            let productName = await extractorObj.extractFromAria(
                 product,
                 ".mb-4 > .kds-Link"
             );
@@ -151,6 +151,38 @@ class FredMeyerScraper {
                     ".kds-Price--alternate"
                 );
                 productPrice = "$" + priceValue;
+            }
+
+            // Since some products utilize the same name with a different size we need to detect that an append it to the product name.
+            // This element is especially hard to target so we use the below attribute to try and get it. Sometimes it might pick up the price per pound
+            // Fortunately the product size takes precedence over price per pound.
+            //let productSize = await product.$eval(`span[data-testid="cart-page-item-sizing"]`, element => element.innerHTML);
+            let productSize = await extractorObj.extractTextContent(
+                product,
+                `span[data-testid="cart-page-item-sizing"]`
+            );
+            // Test that the string does not match the price per pound element.
+            if (productSize && !pricePerPoundRegex.test(productSize)) {
+                // Sometimes Kroger uses a non-breaking space character in HTML, we need to remove this garbage if it exists.
+                if (productSize.includes("&nbsp;")) {
+                    const nbspRegex = /&nbsp;/g;
+                    productSize = productSize.replace(nbspRegex, "");
+                }
+                // Sometimes Kroger places a "|" in the product size, not sure why it's there, no idea why it doesn't render on the page, but it's there...
+                if (productSize.includes("|")) {
+                    const barRegex = /\|/g;
+                    productSize = productSize.replace(barRegex, "");
+                }
+                // If the product size is simply 1 count we remove it as Kroger uses this on blatantly obvious items
+                if (productSize === "1 ct") {
+                    productSize = "";
+                } else {
+                    // Otherwise we can add the count to the product name
+                    productName += ", " + productSize.trim();
+                }
+            } else {
+                // If we got a price per pound then we set it to a blank string.
+                productSize = "";
             }
 
             // Extract the current product URL using the current product and targeting the same as product name

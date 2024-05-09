@@ -40,5 +40,10 @@ this is cleaner than `import { logger } from "./src/utils/WinstonLogger.ts;`
 
 #### Testing
 
-Currently, we have tests only written for our web scrapers, these will when a pull request is made, and they must pass in order to push your changes to main.
+##### Web Scraper Testing
+These tests will run when a pull request is made, and they must pass in order to push your changes to main.
 To run tests locally execute the command `npm run test` to run tests using Mocha and Chai.
+##### Route API Testing
+To write tests for the API route's please create a folder called routes in the tests directory.
+To run tests for routes execute the command `npm run test:routes` to run ONLY the route tests.
+
