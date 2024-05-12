@@ -1,7 +1,5 @@
 name: UnitTesting
 on:
-    push:
-        branches: [main, master]
     pull_request:
         branches: [main, master]
 permissions: write-all
