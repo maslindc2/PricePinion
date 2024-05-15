@@ -65,19 +65,16 @@ class CustomerModel {
         // Build the query for finding the requested product in the ProductsModel
         // Since this record will be stored to the customer's save for later array remove the _id and __v
         // If the customer removes this comparison later on we delete the record from save for later array.
-        const productQuery = this.Products.model
+        const productRecord = await this.Products.model
             .findOne({ productID: productID })
             .select("-_id -__v");
 
         // Build the query for finding the customer we want to save the product comparison to
-        const customerQuery = this.model.findOne({
+        const customerRecord = await this.model.findOne({
             customerName: "Customer Name",
         });
         try {
             // Execute the product query and store the productRecord
-            const productRecord = await productQuery.exec();
-            // Execute the customer query and store the customerRecord
-            const customerRecord = await customerQuery.exec();
             // Check if the product comparison already exists in save for later.
             if (this.isProductComparisonInSFL(productRecord, customerRecord)) {
                 res.status(409).json({
@@ -106,7 +103,7 @@ class CustomerModel {
         // Find the product record that matches the productID in the customer's SFL array
         const object = customerRecord.saveForLater.find(
             (productComparisonInSFL) =>
-                productComparisonInSFL.productID === productRecord.productID
+                productComparisonInSFL?.productID === productRecord.productID
         );
         // If it returns an object then we have the comparison already saved.
         if (object) {
