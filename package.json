@@ -6,6 +6,7 @@
     "scripts": {
         "test": "mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
         "test:routes": "mocha --timeout 1000000 -r ts-node/register 'tests/routes/*.ts'",
+        "test:scrapers": "mocha --timeout 1000000 -r ts-node/register 'tests/webscraper/*.ts'",
         "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
         "dev": "npm run build && node dist/src/AppServer.js",
         "dev:watch": "nodemon --watch 'src/**/*.ts' --exec npm run dev",
