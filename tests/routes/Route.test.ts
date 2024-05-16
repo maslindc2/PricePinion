@@ -169,9 +169,9 @@ describe("Get a Single Product", () => {
             // Expect the productImage to NOT be an empty string
             expect(product.productImage).to.not.equal("");
 
-            // Expect the productComparison to be a string
+            // Expect the productComparison to be an array
             expect(product.productComparison).to.be.instanceOf(Array);
-            // Expect the productComparison to NOT be an empty string
+            // Expect the productComparison to NOT be an empty array
             expect(product.productComparison).to.not.equal([]);
             return true;
         });
