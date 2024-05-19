@@ -85,7 +85,10 @@ class App {
             await this.Products.retrieveProductByID(res, productID);
         });
         this.expressApp.use("/", router);
-        this.expressApp.use("/", express.static(__dirname+"/dist/front-end/browser"));
+        this.expressApp.use(
+            "/",
+            express.static(__dirname + "/angularDist")
+        );
     }
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
