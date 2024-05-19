@@ -87,7 +87,7 @@ class App {
         this.expressApp.use("/", router);
         this.expressApp.use(
             "/",
-            express.static(__dirname + "/dist/front-end/browser")
+            express.static(__dirname + "/angularDist")
         );
     }
     // Scrape store function starts the webscraper
