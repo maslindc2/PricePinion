@@ -45,11 +45,6 @@ class App {
     // Defining the routes use for PricePinion's Express server
     private routes(): void {
         const router = express.Router();
-        router.get("/", (req, res) => {
-            // This is the default landing page used only for DEV purposes for now
-            // When we move to production this route will be removed.
-            res.send("Welcome to PricePinion Server!");
-        });
 
         router.get("/api/products", async (req, res) => {
             // Retrieve all products from the DB
@@ -90,6 +85,7 @@ class App {
             await this.Products.retrieveProductByID(res, productID);
         });
         this.expressApp.use("/", router);
+        this.expressApp.use("/", express.static(__dirname+"/dist/front-end/browser"));
     }
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
