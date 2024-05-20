@@ -4,6 +4,7 @@ import { WebScraperController } from "./WebScraping/WebScraperController";
 import { ProductProcessor } from "./WebScraping/ProductProcessor";
 import { ProductModel } from "@product-model";
 import { CustomerModel } from "@customer-model";
+import path from "path";
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -41,7 +42,11 @@ class App {
             );
             next();
         });
+        
+        // Serve static files from the Angular app
+        this.expressApp.use(express.static(path.join(__dirname, '../../angularDist')));
     }
+
     // Defining the routes use for PricePinion's Express server
     private routes(): void {
         const router = express.Router();
@@ -84,8 +89,14 @@ class App {
             // Retrieve the specific product by productID
             await this.Products.retrieveProductByID(res, productID);
         });
+
         this.expressApp.use("/", router);
-        this.expressApp.use("/", express.static("angularDist"));
+        
+        // Catch-all route to serve Angular's index.html
+        this.expressApp.get('*', (req, res) => {
+            res.sendFile(path.join(__dirname, '../../angularDist', 'index.html'));
+        });
+
     }
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
