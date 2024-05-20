@@ -42,9 +42,11 @@ class App {
             );
             next();
         });
-        
+
         // Serve static files from the Angular app
-        this.expressApp.use(express.static(path.join(__dirname, '../../angularDist')));
+        this.expressApp.use(
+            express.static(path.join(__dirname, "../../angularDist"))
+        );
     }
 
     // Defining the routes use for PricePinion's Express server
@@ -91,12 +93,13 @@ class App {
         });
 
         this.expressApp.use("/", router);
-        
-        // Catch-all route to serve Angular's index.html
-        this.expressApp.get('*', (req, res) => {
-            res.sendFile(path.join(__dirname, '../../angularDist', 'index.html'));
-        });
 
+        // Catch-all route to serve Angular's index.html
+        this.expressApp.get("*", (req, res) => {
+            res.sendFile(
+                path.join(__dirname, "../../angularDist", "index.html")
+            );
+        });
     }
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
