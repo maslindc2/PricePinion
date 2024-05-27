@@ -9,7 +9,7 @@ describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
     before((done) => {
-        chai.request("http://localhost:8080")
+        chai.request("https://pricepinion-backend.azurewebsites.net") 
             .get("/api/products")
             .end((error, res) => {
                 response = res;
@@ -98,7 +98,7 @@ describe("Get a Single Product", () => {
     // Before All tests
     before((done) => {
         // First get the response for a product with comparisons
-        chai.request("http://localhost:8080")
+        chai.request("https://pricepinion-backend.azurewebsites.net")
             .get(`/api/product/${productID}`)
             .end((error, res) => {
                 response = res;
@@ -175,5 +175,76 @@ describe("Get a Single Product", () => {
             expect(product.productComparison).to.not.equal([]);
             return true;
         });
+    });
+});
+
+describe("Save Product Comparison for Later", () => {
+    let response: ChaiHttp.Response;
+    const productID = "fcd850d26cca1a70232123829fbec5ec";
+
+    before((done) => {
+        // First, check if the product is already in the save for later list and delete it if it is
+        chai.request("https://pricepinion-backend.azurewebsites.net")
+            .get("/api/save-for-later")
+            .end((error, res) => {
+                if (error) {
+                    console.error("Error in request:", error);
+                    done(error);
+                } else {
+                    const productExists = res.body.saveForLater.some((product: any) => product.productID === productID);
+                    if (productExists) {
+                        chai.request("https://pricepinion-backend.azurewebsites.net")
+                            .delete(`/api/customer/delete-one-product-from-sfl/${productID}`)
+                            .end((err, delRes) => {
+                                if (err) {
+                                    console.error("Error deleting product:", err);
+                                    done(err);
+                                } else {
+                                    saveProductComparisonForLater(done);
+                                }
+                            });
+                    } else {
+                        saveProductComparisonForLater(done);
+                    }
+                }
+            });
+    });
+
+    function saveProductComparisonForLater(done: Mocha.Done) {
+        chai.request("https://pricepinion-backend.azurewebsites.net")
+            .post("/api/customer/save-for-later")
+            .send({ productID: productID })
+            .end((error, res) => {
+                if (error) {
+                    done(error);
+                } else {
+                    response = res;
+                    done();
+                }
+            });
+    }
+
+    it("Response should successfully save the product comparison for later", () => {
+        // Expect the response status to be 201 (record created)
+        expect(response).to.have.status(201);
+        // Expect the response body to have a message
+        expect(response.body).to.have.property("message");
+    });
+
+    it("Response should return a conflict if the product comparison already exists", (done) => {
+        chai.request("https://pricepinion-backend.azurewebsites.net")
+            .post("/api/customer/save-for-later")
+            .send({ productID: productID })
+            .end((error, res) => {
+                if (error) {
+                    done(error);
+                } else {
+                    // Expect the response status to be 409 (Conflict)
+                    expect(res).to.have.status(409);
+                    // Expect the response body to have a message
+                    expect(res.body).to.have.property("message");
+                    done();
+                }
+            });
     });
 });
