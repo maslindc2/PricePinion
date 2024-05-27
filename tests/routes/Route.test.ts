@@ -9,7 +9,7 @@ describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
     before((done) => {
-        chai.request("https://pricepinion-backend.azurewebsites.net") 
+        chai.request("http://localhost:8080") 
             .get("/api/products")
             .end((error, res) => {
                 response = res;
@@ -93,12 +93,12 @@ describe("Get a Single Product", () => {
     let response: ChaiHttp.Response;
     // Setting productID's of specific specific item we want to fetch
     // This is the product id for Roma Tomatoes
-    const productID = "fcd850d26cca1a70232123829fbec5ec";
+    const productID = "3f203156d423adb329af5f1cc25c2eed";
 
     // Before All tests
     before((done) => {
         // First get the response for a product with comparisons
-        chai.request("https://pricepinion-backend.azurewebsites.net")
+        chai.request("http://localhost:8080")
             .get(`/api/product/${productID}`)
             .end((error, res) => {
                 response = res;
@@ -180,20 +180,21 @@ describe("Get a Single Product", () => {
 
 describe("Save Product Comparison for Later", () => {
     let response: ChaiHttp.Response;
-    const productID = "fcd850d26cca1a70232123829fbec5ec";
+    let productID: String;
 
     before((done) => {
+        productID = "3f203156d423adb329af5f1cc25c2eed";
         // First, check if the product is already in the save for later list and delete it if it is
-        chai.request("https://pricepinion-backend.azurewebsites.net")
+        chai.request("http://localhost:8080")
             .get("/api/save-for-later")
             .end((error, res) => {
                 if (error) {
                     console.error("Error in request:", error);
                     done(error);
                 } else {
-                    const productExists = res.body.saveForLater.some((product: any) => product.productID === productID);
+                    let productExists = res.body.saveForLater.some((product: any) => product.productID === productID);
                     if (productExists) {
-                        chai.request("https://pricepinion-backend.azurewebsites.net")
+                        chai.request("http://localhost:8080")
                             .delete(`/api/customer/delete-one-product-from-sfl/${productID}`)
                             .end((err, delRes) => {
                                 if (err) {
@@ -211,7 +212,7 @@ describe("Save Product Comparison for Later", () => {
     });
 
     function saveProductComparisonForLater(done: Mocha.Done) {
-        chai.request("https://pricepinion-backend.azurewebsites.net")
+        chai.request("http://localhost:8080")
             .post("/api/customer/save-for-later")
             .send({ productID: productID })
             .end((error, res) => {
@@ -232,7 +233,7 @@ describe("Save Product Comparison for Later", () => {
     });
 
     it("Response should return a conflict if the product comparison already exists", (done) => {
-        chai.request("https://pricepinion-backend.azurewebsites.net")
+        chai.request("http://localhost:8080")
             .post("/api/customer/save-for-later")
             .send({ productID: productID })
             .end((error, res) => {
