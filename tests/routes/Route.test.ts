@@ -93,7 +93,7 @@ describe("Get a Single Product", () => {
     let response: ChaiHttp.Response;
     // Setting productID's of specific specific item we want to fetch
     // This is the product id for Roma Tomatoes
-    const productID = "fcd850d26cca1a70232123829fbec5ec";
+    const productID = "3f203156d423adb329af5f1cc25c2eed";
 
     // Before All tests
     before((done) => {
@@ -175,5 +175,84 @@ describe("Get a Single Product", () => {
             expect(product.productComparison).to.not.equal([]);
             return true;
         });
+    });
+});
+
+describe("Save Product Comparison for Later", () => {
+    let response: ChaiHttp.Response;
+    let productID: String;
+
+    before((done) => {
+        productID = "3f203156d423adb329af5f1cc25c2eed";
+        // First, check if the product is already in the save for later list and delete it if it is
+        chai.request("http://localhost:8080")
+            .get("/api/save-for-later")
+            .end((error, res) => {
+                if (error) {
+                    console.error("Error in request:", error);
+                    done(error);
+                } else {
+                    let productExists = res.body.saveForLater.some(
+                        (product: any) => product.productID === productID
+                    );
+                    if (productExists) {
+                        chai.request("http://localhost:8080")
+                            .delete(
+                                `/api/customer/delete-one-product-from-sfl/${productID}`
+                            )
+                            .end((err, delRes) => {
+                                if (err) {
+                                    console.error(
+                                        "Error deleting product:",
+                                        err
+                                    );
+                                    done(err);
+                                } else {
+                                    saveProductComparisonForLater(done);
+                                }
+                            });
+                    } else {
+                        saveProductComparisonForLater(done);
+                    }
+                }
+            });
+    });
+
+    function saveProductComparisonForLater(done: Mocha.Done) {
+        chai.request("http://localhost:8080")
+            .post("/api/customer/save-for-later")
+            .send({ productID: productID })
+            .end((error, res) => {
+                if (error) {
+                    done(error);
+                } else {
+                    response = res;
+                    done();
+                }
+            });
+    }
+
+    it("Response should successfully save the product comparison for later", () => {
+        // Expect the response status to be 201 (record created)
+        expect(response).to.have.status(201);
+        // Expect the response body to have a message
+        expect(response.body).to.have.property("message");
+    });
+
+    it("Response should return a conflict if the product comparison already exists", (done) => {
+        chai.request("http://localhost:8080")
+            .post("/api/customer/save-for-later")
+            .send({ productID: productID })
+            .end((error, res) => {
+                if (error) {
+                    done(error);
+                } else {
+                    // Expect the response status to be 409 (Conflict)
+                    expect(res).to.have.status(409);
+                    // Expect the response body to have a message
+                    expect(res.body).to.have.property("message");
+                    done();
+                }
+            });
     });
 });
