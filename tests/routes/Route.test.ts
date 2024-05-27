@@ -9,7 +9,7 @@ describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
     before((done) => {
-        chai.request("http://localhost:8080") 
+        chai.request("http://localhost:8080")
             .get("/api/products")
             .end((error, res) => {
                 response = res;
@@ -192,13 +192,20 @@ describe("Save Product Comparison for Later", () => {
                     console.error("Error in request:", error);
                     done(error);
                 } else {
-                    let productExists = res.body.saveForLater.some((product: any) => product.productID === productID);
+                    let productExists = res.body.saveForLater.some(
+                        (product: any) => product.productID === productID
+                    );
                     if (productExists) {
                         chai.request("http://localhost:8080")
-                            .delete(`/api/customer/delete-one-product-from-sfl/${productID}`)
+                            .delete(
+                                `/api/customer/delete-one-product-from-sfl/${productID}`
+                            )
                             .end((err, delRes) => {
                                 if (err) {
-                                    console.error("Error deleting product:", err);
+                                    console.error(
+                                        "Error deleting product:",
+                                        err
+                                    );
                                     done(err);
                                 } else {
                                     saveProductComparisonForLater(done);
