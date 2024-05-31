@@ -2063,8 +2063,7 @@ var he = (() => {
     let t = class t {
         constructor(e) {
             (this.http = e),
-                (this.hostUrl =
-                    "https://pricepinion-backend.azurewebsites.net/");
+                (this.hostUrl = "https://pricepinion.azurewebsites.net/");
         }
         getAllProducts() {
             return this.http.get(`${this.hostUrl}api/products`);
