@@ -31,9 +31,15 @@ class ProductModel {
         );
     }
     public async createModel() {
+
         try {
             await Mongoose.connect(this.dbConnectionString);
-            this.model = Mongoose.model<IProductModel>("Products", this.schema);
+            console.log("Connected to MongoDB", Mongoose.models)
+            if (Mongoose.models.Products) {
+                this.model = Mongoose.model<IProductModel>("Products");
+            } else {
+                this.model = Mongoose.model<IProductModel>("Products", this.schema);
+            }
         } catch (error) {
             logger.error(error);
         }

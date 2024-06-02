@@ -5,6 +5,16 @@ import { ProductProcessor } from "./WebScraping/ProductProcessor";
 import { ProductModel } from "@product-model";
 import { CustomerModel } from "@customer-model";
 import path from "path";
+import dotenv from "dotenv";
+import session from "express-session";
+import MongoStore from "connect-mongo";
+import passport from "passport";
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Import Passport configuration
+import "./config/passport";
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -13,22 +23,30 @@ class App {
     public Products: ProductModel;
     public Customer: CustomerModel;
 
-    //Run configuration methods on the Express instance.
+    // Run configuration methods on the Express instance.
     constructor(mongoDBConnection: string) {
+        console.log("MongoDB Connection String: ", mongoDBConnection);
         this.expressApp = express();
-        this.middleware();
+        this.middleware(mongoDBConnection);
         this.routes();
         this.Products = new ProductModel(mongoDBConnection);
         this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
-        ////this.scrapeAllStores();
+        // this.scrapeAllStores();
     }
 
     // Configure the express middleware
-    private middleware(): void {
+    private middleware(mongoDBConnection: string): void {
         // Express bundles include bodyParser by default no longer needed as a separate library
         this.expressApp.use(express.json());
         this.expressApp.use(express.urlencoded({ extended: false }));
+
+        // // Enable CORS
+        // this.expressApp.use(cors({
+        //     origin: 'http://localhost:4200',
+        //     credentials: true
+        // }));
+
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
             res.header("Access-Control-Allow-Origin", "*");
@@ -42,6 +60,18 @@ class App {
             );
             next();
         });
+
+        // Session setup
+        this.expressApp.use(session({
+            secret: process.env.SESSION_SECRET || "default_secret",
+            resave: false,
+            saveUninitialized: false,
+            store: MongoStore.create({ mongoUrl: mongoDBConnection })
+        }));
+
+        // Initialize Passport
+        this.expressApp.use(passport.initialize());
+        this.expressApp.use(passport.session());
 
         // Serve static files from the Angular app
         this.expressApp.use(
@@ -92,6 +122,24 @@ class App {
             await this.Products.retrieveProductByID(res, productID);
         });
 
+        // Authentication routes
+        router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+        router.get('/auth/google/callback',
+            passport.authenticate('google', { failureRedirect: '/' }),
+            (req, res) => {
+                res.redirect('http://localhost:4200'); // Redirect to your Angular dashboard
+            }
+        );
+
+
+        router.get('/auth/logout', (req, res, next) => {
+            // req.logout((err) => {
+            //     if (err) { return next(err); }
+            //     res.redirect('/'); // Redirect to your Angular homepage
+            // });
+        });
+
         this.expressApp.use("/", router);
 
         // Catch-all route to serve Angular's index.html
@@ -111,7 +159,7 @@ class App {
         // Creating an object productProcessor.
         const productProcessor = new ProductProcessor(this.Products);
         // Process and update the products on the DB using the results from the web scraper.
-        productProcessor.processScrapeResults(scrapeResults);
+        await productProcessor.processScrapeResults(scrapeResults);
     }
 }
 export { App };
