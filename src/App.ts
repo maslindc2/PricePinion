@@ -41,23 +41,29 @@ class App {
         this.expressApp.use(express.json());
         this.expressApp.use(express.urlencoded({ extended: false }));
 
-        
-
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
             res.header("Access-Control-Allow-Origin", "*");
-            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-            res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            res.header(
+                "Access-Control-Allow-Headers",
+                "Origin, X-Requested-With, Content-Type, Accept"
+            );
+            res.header(
+                "Access-Control-Allow-Methods",
+                "GET, POST, PUT, DELETE"
+            );
             res.header("Access-Control-Allow-Credentials", "true");
             next();
         });
         // Session setup
-        this.expressApp.use(session({
-            secret: process.env.SESSION_SECRET || "default_secret",
-            resave: false,
-            saveUninitialized: false,
-            store: MongoStore.create({ mongoUrl: mongoDBConnection })
-        }));
+        this.expressApp.use(
+            session({
+                secret: process.env.SESSION_SECRET || "default_secret",
+                resave: false,
+                saveUninitialized: false,
+                store: MongoStore.create({ mongoUrl: mongoDBConnection }),
+            })
+        );
 
         // Initialize Passport
         this.expressApp.use(passport.initialize());
@@ -74,7 +80,7 @@ class App {
         if (req.isAuthenticated()) {
             return next();
         }
-        res.status(401).json({ message: 'Unauthorized' });
+        res.status(401).json({ message: "Unauthorized" });
     }
 
     // Defining the routes use for PricePinion's Express server
@@ -86,13 +92,21 @@ class App {
             await this.Products.retrieveAllProducts(res);
         });
 
-        router.get("/api/save-for-later", this.ensureAuthenticated, async (req, res) => {
-            await this.Customer.retrieveSaveForLater(req, res);
-        });
+        router.get(
+            "/api/save-for-later",
+            this.ensureAuthenticated,
+            async (req, res) => {
+                await this.Customer.retrieveSaveForLater(req, res);
+            }
+        );
 
-        router.post("/api/customer/save-for-later", this.ensureAuthenticated, async (req, res) => {
-            await this.Customer.saveComparisonForLater(req, res);
-        });
+        router.post(
+            "/api/customer/save-for-later",
+            this.ensureAuthenticated,
+            async (req, res) => {
+                await this.Customer.saveComparisonForLater(req, res);
+            }
+        );
 
         router.delete(
             "/api/customer/delete-all-products-from-sfl",
@@ -116,33 +130,39 @@ class App {
         });
 
         // Authentication routes
-        router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+        router.get(
+            "/auth/google",
+            passport.authenticate("google", { scope: ["profile", "email"] })
+        );
 
-        router.get('/auth/google/callback',
-            passport.authenticate('google', { failureRedirect: '/' }),
+        router.get(
+            "/auth/google/callback",
+            passport.authenticate("google", { failureRedirect: "/" }),
             (req, res) => {
-                res.redirect('https://pricepinion.azurewebsites.net/'); // Redirect to your Angular dashboard
+                res.redirect("https://pricepinion.azurewebsites.net/"); // Redirect to your Angular dashboard
             }
         );
-        
-        router.get('/auth/logout', (req, res, next) => {
+
+        router.get("/auth/logout", (req, res, next) => {
             req.logout((err) => {
-                if (err) { return next(err); }
+                if (err) {
+                    return next(err);
+                }
                 req.session.destroy((err) => {
                     if (err) {
-                        return res.status(500).send('Failed to logout');
+                        return res.status(500).send("Failed to logout");
                     }
-                    res.clearCookie('connect.sid');
-                    res.redirect('https://pricepinion.azurewebsites.net/'); // Redirect to your Angular homepage
+                    res.clearCookie("connect.sid");
+                    res.redirect("https://pricepinion.azurewebsites.net/"); // Redirect to your Angular homepage
                 });
             });
         });
-        
-        router.get('/auth/user', (req, res) => {
+
+        router.get("/auth/user", (req, res) => {
             if (req.isAuthenticated()) {
                 res.json(req.user);
             } else {
-                res.status(401).json({ message: 'Unauthorized' });
+                res.status(401).json({ message: "Unauthorized" });
             }
         });
 

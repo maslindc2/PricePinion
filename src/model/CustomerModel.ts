@@ -28,7 +28,7 @@ class CustomerModel {
                 displayName: String, // To store the display name from Google
                 firstName: String, // To store the first name from Google
                 lastName: String, // To store the last name from Google
-                image: String // To store the profile image URL from Google
+                image: String, // To store the profile image URL from Google
             },
             { collection: "customers" }
         );
@@ -40,7 +40,10 @@ class CustomerModel {
             if (Mongoose.models.Customers) {
                 this.model = Mongoose.model<ICustomerModel>("Customers");
             } else {
-                this.model = Mongoose.model<ICustomerModel>("Customers", this.schema);
+                this.model = Mongoose.model<ICustomerModel>(
+                    "Customers",
+                    this.schema
+                );
             }
         } catch (error) {
             logger.error(error);
@@ -60,7 +63,7 @@ class CustomerModel {
                 lastName: name.familyName,
                 image: photos[0].value,
                 customerEmail: emails[0].value,
-                customerName: `${name.givenName} ${name.familyName}`
+                customerName: `${name.givenName} ${name.familyName}`,
             });
             await customer.save();
         }
@@ -70,7 +73,7 @@ class CustomerModel {
 
     public async saveComparisonForLater(req, res) {
         if (!req.user) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
         const productID = req.body.productID;
@@ -85,7 +88,8 @@ class CustomerModel {
         try {
             if (this.isProductComparisonInSFL(productRecord, customerRecord)) {
                 res.status(409).json({
-                    message: "Product Comparison Already Exists In Customer's Save For Later!",
+                    message:
+                        "Product Comparison Already Exists In Customer's Save For Later!",
                 });
             } else {
                 customerRecord.saveForLater.push(productRecord);
@@ -100,7 +104,10 @@ class CustomerModel {
         }
     }
 
-    private isProductComparisonInSFL(productRecord: any, customerRecord: any): boolean {
+    private isProductComparisonInSFL(
+        productRecord: any,
+        customerRecord: any
+    ): boolean {
         const object = customerRecord.saveForLater.find(
             (productComparisonInSFL) =>
                 productComparisonInSFL?.productID === productRecord.productID
@@ -110,7 +117,7 @@ class CustomerModel {
 
     public async retrieveSaveForLater(req, res) {
         if (!req.user) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
         const query = this.model
@@ -127,7 +134,7 @@ class CustomerModel {
 
     public async deleteAllProductsFromSFL(req, res) {
         if (!req.user) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
         const query = this.model.findOne({ googleId: req.user.googleId });
@@ -136,7 +143,8 @@ class CustomerModel {
             customerRecord.saveForLater = [];
             await customerRecord.save();
             res.status(200).json({
-                message: "All Product Comparisons in Save For Later were Removed!",
+                message:
+                    "All Product Comparisons in Save For Later were Removed!",
             });
         } catch (error) {
             logger.error(error);
@@ -146,7 +154,7 @@ class CustomerModel {
 
     public async deleteOneProductFromSFL(req, res) {
         if (!req.user) {
-            return res.status(401).json({ message: 'Unauthorized' });
+            return res.status(401).json({ message: "Unauthorized" });
         }
 
         const productID = req.params.productID;
@@ -159,7 +167,8 @@ class CustomerModel {
             );
             await customerRecord.save();
             res.status(200).json({
-                message: "The Specific Product Comparison has been removed from customer's save for later!",
+                message:
+                    "The Specific Product Comparison has been removed from customer's save for later!",
             });
         } catch (error) {
             logger.error(error);

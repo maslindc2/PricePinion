@@ -1,5 +1,5 @@
 // config/passport.ts
-import {CustomerModel} from "@customer-model";
+import { CustomerModel } from "@customer-model";
 import { ProductModel } from "@product-model";
 import dotenv from "dotenv";
 
@@ -9,20 +9,25 @@ const Products = new ProductModel(process.env.MONGODB_URI || "");
 const Customer = new CustomerModel(process.env.MONGODB_URI || "", Products);
 
 let passport = require("passport");
-let GoogleStrategy = require('passport-google-oauth20').Strategy;
+let GoogleStrategy = require("passport-google-oauth20").Strategy;
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID || "",
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    callbackURL: "/auth/google/callback"
-}, async (accessToken, refreshToken, profile, done) => {
-    try {
-        const customer = await Customer.findOrCreateGoogleUser(profile);
-        done(null, customer);
-    } catch (err) {
-        done(err, null);
-    }
-}));
+passport.use(
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID || "",
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+            callbackURL: "/auth/google/callback",
+        },
+        async (accessToken, refreshToken, profile, done) => {
+            try {
+                const customer = await Customer.findOrCreateGoogleUser(profile);
+                done(null, customer);
+            } catch (err) {
+                done(err, null);
+            }
+        }
+    )
+);
 
 passport.serializeUser((user, done) => {
     done(null, (user as any).id);
