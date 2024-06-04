@@ -18,7 +18,6 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         const customer = await Customer.findOrCreateGoogleUser(profile);
-        console.log("Customer", customer);
         done(null, customer);
     } catch (err) {
         done(err, null);

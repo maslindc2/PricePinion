@@ -9,14 +9,14 @@ import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
-
+import cors from "Cors";
 // Load environment variables from .env file
 dotenv.config();
 
 // Import Passport configuration
 import "./config/passport";
 
-// Creates and configures an ExpressJS web server.
+// Creates and configures an ExpressJS web server.qq
 class App {
     // ref to Express instance
     public expressApp: express.Application;
@@ -41,11 +41,11 @@ class App {
         this.expressApp.use(express.json());
         this.expressApp.use(express.urlencoded({ extended: false }));
 
-        // // Enable CORS
-        // this.expressApp.use(cors({
-        //     origin: 'http://localhost:4200',
-        //     credentials: true
-        // }));
+        // Enable CORS
+        this.expressApp.use(cors({
+            origin: 'http://localhost:4200',
+            credentials: true
+        }));
 
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
@@ -90,7 +90,7 @@ class App {
 
         router.get("/api/save-for-later", async (req, res) => {
             // Retrieve a specific customer
-            await this.Customer.retrieveSaveForLater(res);
+            await this.Customer.retrieveSaveForLater(req, res);
         });
 
         router.post("/api/customer/save-for-later", async (req, res) => {
@@ -128,6 +128,8 @@ class App {
         router.get('/auth/google/callback',
             passport.authenticate('google', { failureRedirect: '/' }),
             (req, res) => {
+                console.log("req.user")
+                console.log("req", req)
                 res.redirect('http://localhost:4200'); // Redirect to your Angular dashboard
             }
         );
