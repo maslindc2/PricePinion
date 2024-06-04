@@ -9,6 +9,7 @@ import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
+import cors from 'cors';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -41,23 +42,18 @@ class App {
         this.expressApp.use(express.json());
         this.expressApp.use(express.urlencoded({ extended: false }));
 
-        // // Enable CORS
-        // this.expressApp.use(cors({
-        //     origin: 'http://localhost:4200',
-        //     credentials: true
-        // }));
+        // Enable CORS
+        this.expressApp.use(cors({
+            origin: 'http://localhost:4200',
+            credentials: true
+        }));
 
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept"
-            );
-            res.header(
-                "Access-Control-Allow-Methods",
-                "GET, POST, PUT, DELETE"
-            );
+            res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            res.header("Access-Control-Allow-Credentials", "true");
             next();
         });
 
@@ -66,7 +62,12 @@ class App {
             secret: process.env.SESSION_SECRET || "default_secret",
             resave: false,
             saveUninitialized: false,
-            store: MongoStore.create({ mongoUrl: mongoDBConnection })
+            store: MongoStore.create({ mongoUrl: mongoDBConnection }),
+            cookie: {
+                secure: false, // Set to true if you're using HTTPS
+                httpOnly: true,
+                sameSite: 'lax'
+            }
         }));
 
         // Initialize Passport
@@ -123,22 +124,43 @@ class App {
         });
 
         // Authentication routes
-        router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-        router.get('/auth/google/callback',
-            passport.authenticate('google', { failureRedirect: '/' }),
-            (req, res) => {
-                res.redirect('http://localhost:4200'); // Redirect to your Angular dashboard
+router.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    (req, res) => {
+        // Set user info in a cookie
+        const user = req.user;
+        if (user) {
+            res.cookie('user', JSON.stringify(user), { httpOnly: true });
+        }
+        res.redirect('http://localhost:4200/Account'); // Redirect to your Angular account page
+    }
+);
+
+router.get('/auth/logout', (req, res, next) => {
+    req.logout((err) => {
+        if (err) { return next(err); }
+        req.session.destroy((err) => {
+            if (err) {
+                return res.status(500).send('Failed to logout');
             }
-        );
-
-
-        router.get('/auth/logout', (req, res, next) => {
-            // req.logout((err) => {
-            //     if (err) { return next(err); }
-            //     res.redirect('/'); // Redirect to your Angular homepage
-            // });
+            res.clearCookie('connect.sid');
+            res.status(200).json({ message: 'Logout successful' }); // Send a proper JSON response
         });
+    });
+});
+
+
+router.get('/auth/user', (req, res) => {
+    console.log("User in session:", req.user); // Log the user in the session for debugging
+    if (req.isAuthenticated()) {
+        res.json(req.user);
+    } else {
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+});
+
 
         this.expressApp.use("/", router);
 
@@ -149,6 +171,7 @@ class App {
             );
         });
     }
+
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
