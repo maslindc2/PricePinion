@@ -14,9 +14,7 @@ class CustomerModel {
         this.dbConnectionString = DB_CONNECTION_STRING;
         this.createSchema();
         this.Products = Products;
-        this.createModel().then(async () => {
-            await this.createCustomer();
-        });
+        this.createModel();
     }
 
     public createSchema() {
@@ -39,7 +37,6 @@ class CustomerModel {
     public async createModel() {
         try {
             await Mongoose.connect(this.dbConnectionString);
-            console.log("Connected to MongoDB", Mongoose.models)
             if (Mongoose.models.Customers) {
                 this.model = Mongoose.model<ICustomerModel>("Customers");
             } else {
@@ -50,25 +47,13 @@ class CustomerModel {
         }
     }
 
-    public async createCustomer() {
-        const query = this.model.findOne({ customerName: "Customer Name" });
-        const customerRecord = await query.exec();
-        if (!customerRecord) {
-            const id = crypto.randomBytes(16).toString("hex");
-            await this.model.create({
-                customerID: id,
-                customerName: "Customer Name",
-                customerEmail: "customer@customer.com",
-            });
-        }
-    }
-
     public async findOrCreateGoogleUser(profile) {
         const { id, displayName, name, photos, emails } = profile;
         let customer = await this.model.findOne({ googleId: id });
 
         if (!customer) {
             customer = new this.model({
+                customerID: crypto.randomBytes(16).toString("hex"),
                 googleId: id,
                 displayName,
                 firstName: name.givenName,
@@ -90,8 +75,9 @@ class CustomerModel {
             .select("-_id -__v");
 
         const customerRecord = await this.model.findOne({
-            customerName: "Customer Name",
+            googleId: req.user.googleId,
         });
+
         try {
             if (this.isProductComparisonInSFL(productRecord, customerRecord)) {
                 res.status(409).json({
@@ -118,9 +104,9 @@ class CustomerModel {
         return !!object;
     }
 
-    public async retrieveSaveForLater(res) {
+    public async retrieveSaveForLater(req, res) {
         const query = this.model
-            .findOne({ customerName: "Customer Name" })
+            .findOne({ googleId: req.user.googleId })
             .select("-_id -__v");
         try {
             const customerRecord = await query.exec();
@@ -129,17 +115,13 @@ class CustomerModel {
             logger.error(error);
         }
     }
+
     public async deleteAllProductsFromSFL(req, res) {
-        // This query is used to retrieve the customer model
-        const query = this.model.findOne({ customerName: "Customer Name" });
+        const query = this.model.findOne({ googleId: req.user.googleId });
         try {
-            // Executes the customer record query
             const customerRecord = await query.exec();
-            // Reassigns the save for later array to an empty array
             customerRecord.saveForLater = [];
-            // Saves the customer record to the DB
             await customerRecord.save();
-            // Sends a response stating that the operation was successful.
             res.status(200).json({
                 message: "All Product Comparisons in Save For Later were Removed!",
             });
@@ -149,8 +131,9 @@ class CustomerModel {
         }
     }
 
-    public async deleteOneProductFromSFL(res, productID) {
-        const query = this.model.findOne({ customerName: "Customer Name" });
+    public async deleteOneProductFromSFL(req, res) {
+        const productID = req.params.productID;
+        const query = this.model.findOne({ googleId: req.user.googleId });
         try {
             const customerRecord = await query.exec();
             customerRecord.saveForLater = customerRecord.saveForLater.filter(
