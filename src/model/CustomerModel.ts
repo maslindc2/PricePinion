@@ -69,6 +69,10 @@ class CustomerModel {
     }
 
     public async saveComparisonForLater(req, res) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         const productID = req.body.productID;
         const productRecord = await this.Products.model
             .findOne({ productID: productID })
@@ -105,6 +109,10 @@ class CustomerModel {
     }
 
     public async retrieveSaveForLater(req, res) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         const query = this.model
             .findOne({ googleId: req.user.googleId })
             .select("-_id -__v");
@@ -113,10 +121,15 @@ class CustomerModel {
             res.json(customerRecord);
         } catch (error) {
             logger.error(error);
+            res.sendStatus(500);
         }
     }
 
     public async deleteAllProductsFromSFL(req, res) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         const query = this.model.findOne({ googleId: req.user.googleId });
         try {
             const customerRecord = await query.exec();
@@ -132,6 +145,10 @@ class CustomerModel {
     }
 
     public async deleteOneProductFromSFL(req, res) {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
         const productID = req.params.productID;
         const query = this.model.findOne({ googleId: req.user.googleId });
         try {
