@@ -9,14 +9,15 @@ import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
-import cors from "Cors";
+import cors from 'cors';
+
 // Load environment variables from .env file
 dotenv.config();
 
 // Import Passport configuration
 import "./config/passport";
 
-// Creates and configures an ExpressJS web server.qq
+// Creates and configures an ExpressJS web server.
 class App {
     // ref to Express instance
     public expressApp: express.Application;
@@ -49,18 +50,12 @@ class App {
 
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "*");
-            res.header(
-                "Access-Control-Allow-Headers",
-                "Origin, X-Requested-With, Content-Type, Accept"
-            );
-            res.header(
-                "Access-Control-Allow-Methods",
-                "GET, POST, PUT, DELETE"
-            );
+            res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+            res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+            res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+            res.header("Access-Control-Allow-Credentials", "true");
             next();
         });
-
         // Session setup
         this.expressApp.use(session({
             secret: process.env.SESSION_SECRET || "default_secret",
@@ -79,6 +74,14 @@ class App {
         );
     }
 
+    // Middleware to ensure the user is authenticated
+    private ensureAuthenticated(req: any, res: any, next: any) {
+        if (req.isAuthenticated()) {
+            return next();
+        }
+        res.status(401).json({ message: 'Unauthorized' });
+    }
+
     // Defining the routes use for PricePinion's Express server
     private routes(): void {
         const router = express.Router();
@@ -88,37 +91,32 @@ class App {
             await this.Products.retrieveAllProducts(res);
         });
 
-        router.get("/api/save-for-later", async (req, res) => {
-            // Retrieve a specific customer
+        router.get("/api/save-for-later", this.ensureAuthenticated, async (req, res) => {
             await this.Customer.retrieveSaveForLater(req, res);
         });
 
-        router.post("/api/customer/save-for-later", async (req, res) => {
-            // Call save product comparison for later function
+        router.post("/api/customer/save-for-later", this.ensureAuthenticated, async (req, res) => {
             await this.Customer.saveComparisonForLater(req, res);
         });
 
         router.delete(
             "/api/customer/delete-all-products-from-sfl",
+            this.ensureAuthenticated,
             async (req, res) => {
-                // Call save product comparison for later function
                 await this.Customer.deleteAllProductsFromSFL(req, res);
             }
         );
 
         router.delete(
             "/api/customer/delete-one-product-from-sfl/:productID",
+            this.ensureAuthenticated,
             async (req, res) => {
-                const productID = req.params.productID;
-                // Call save product comparison for later function
-                await this.Customer.deleteOneProductFromSFL(res, productID);
+                await this.Customer.deleteOneProductFromSFL(req, res);
             }
         );
 
         router.get("/api/product/:productID", async (req, res) => {
-            // Store the productID from the request parameters
             const productID = req.params.productID;
-            // Retrieve the specific product by productID
             await this.Products.retrieveProductByID(res, productID);
         });
 
@@ -128,18 +126,44 @@ class App {
         router.get('/auth/google/callback',
             passport.authenticate('google', { failureRedirect: '/' }),
             (req, res) => {
-                console.log("req.user")
-                console.log("req", req)
                 res.redirect('http://localhost:4200'); // Redirect to your Angular dashboard
             }
         );
 
+        // router.get('/auth/logout', (req, res, next) => {
+        //     req.logout((err) => {
+        //         if (err) { return next(err); }
+        //         req.session.destroy((err) => {
+        //             if (err) {
+        //                 return res.status(500).send('Failed to logout');
+        //             }
+        //             setTimeout(() =>{
+        //                 res.clearCookie('connect.sid');
+        //             }, 1000)
+        //             res.redirect('http://localhost:4200'); // Redirect to your Angular homepage
+        //         });
+        //     });
+        // });
 
         router.get('/auth/logout', (req, res, next) => {
-            // req.logout((err) => {
-            //     if (err) { return next(err); }
-            //     res.redirect('/'); // Redirect to your Angular homepage
-            // });
+            req.logout((err) => {
+                if (err) { return next(err); }
+                req.session.destroy((err) => {
+                    if (err) {
+                        return res.status(500).send('Failed to logout');
+                    }
+                    res.clearCookie('connect.sid');
+                    res.redirect('http://localhost:4200'); // Redirect to your Angular homepage
+                });
+            });
+        });
+        
+        router.get('/auth/user', (req, res) => {
+            if (req.isAuthenticated()) {
+                res.json(req.user);
+            } else {
+                res.status(401).json({ message: 'Unauthorized' });
+            }
         });
 
         this.expressApp.use("/", router);
@@ -151,16 +175,13 @@ class App {
             );
         });
     }
+
     // Scrape store function starts the webscraper
     private async scrapeAllStores() {
         logger.info("Starting Scrape Jobs!");
-        // Creating a scraperController object.
         const scraperController = new WebScraperController();
-        // Run the webscraper and store object results.
         const scrapeResults = await scraperController.runWebScrapers();
-        // Creating an object productProcessor.
         const productProcessor = new ProductProcessor(this.Products);
-        // Process and update the products on the DB using the results from the web scraper.
         await productProcessor.processScrapeResults(scrapeResults);
     }
 }
