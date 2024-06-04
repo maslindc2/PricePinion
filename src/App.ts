@@ -9,7 +9,6 @@ import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
-import cors from 'cors';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -42,15 +41,11 @@ class App {
         this.expressApp.use(express.json());
         this.expressApp.use(express.urlencoded({ extended: false }));
 
-        // Enable CORS
-        this.expressApp.use(cors({
-            origin: 'http://localhost:4200',
-            credentials: true
-        }));
+        
 
         // Setting allowed headers for the Express server
         this.expressApp.use((req, res, next) => {
-            res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+            res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
             res.header("Access-Control-Allow-Credentials", "true");
@@ -126,25 +121,10 @@ class App {
         router.get('/auth/google/callback',
             passport.authenticate('google', { failureRedirect: '/' }),
             (req, res) => {
-                res.redirect('http://localhost:4200'); // Redirect to your Angular dashboard
+                res.redirect('https://pricepinion.azurewebsites.net/'); // Redirect to your Angular dashboard
             }
         );
-
-        // router.get('/auth/logout', (req, res, next) => {
-        //     req.logout((err) => {
-        //         if (err) { return next(err); }
-        //         req.session.destroy((err) => {
-        //             if (err) {
-        //                 return res.status(500).send('Failed to logout');
-        //             }
-        //             setTimeout(() =>{
-        //                 res.clearCookie('connect.sid');
-        //             }, 1000)
-        //             res.redirect('http://localhost:4200'); // Redirect to your Angular homepage
-        //         });
-        //     });
-        // });
-
+        
         router.get('/auth/logout', (req, res, next) => {
             req.logout((err) => {
                 if (err) { return next(err); }
@@ -153,7 +133,7 @@ class App {
                         return res.status(500).send('Failed to logout');
                     }
                     res.clearCookie('connect.sid');
-                    res.redirect('http://localhost:4200'); // Redirect to your Angular homepage
+                    res.redirect('https://pricepinion.azurewebsites.net/'); // Redirect to your Angular homepage
                 });
             });
         });
