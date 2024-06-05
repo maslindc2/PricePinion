@@ -4,12 +4,12 @@ import "mocha";
 import { AnyObject } from "mongoose";
 
 chai.use(chaiHTTP);
-
+const azureUrl= "https://pricepinion.azurewebsites.net";
 describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
     before((done) => {
-        chai.request("http://localhost:8080")
+        chai.request(azureUrl)
             .get("/api/products")
             .end((error, res) => {
                 response = res;
@@ -98,7 +98,7 @@ describe("Get a Single Product", () => {
     // Before All tests
     before((done) => {
         // First get the response for a product with comparisons
-        chai.request("http://localhost:8080")
+        chai.request(azureUrl)
             .get(`/api/product/${productID}`)
             .end((error, res) => {
                 response = res;
@@ -185,7 +185,7 @@ describe("Save Product Comparison for Later", () => {
     before((done) => {
         productID = "e0d074445778fa6c553fe4e3a8eb66cb";
         // First, check if the product is already in the save for later list and delete it if it is
-        chai.request("http://localhost:8080")
+        chai.request(azureUrl)
             .get("/api/save-for-later")
             .end((error, res) => {
                 if (error) {
@@ -196,7 +196,7 @@ describe("Save Product Comparison for Later", () => {
                         (product: any) => product.productID === productID
                     );
                     if (productExists) {
-                        chai.request("http://localhost:8080")
+                        chai.request(azureUrl)
                             .delete(
                                 `/api/customer/delete-one-product-from-sfl/${productID}`
                             )
@@ -219,7 +219,7 @@ describe("Save Product Comparison for Later", () => {
     });
 
     function saveProductComparisonForLater(done: Mocha.Done) {
-        chai.request("http://localhost:8080")
+        chai.request(azureUrl)
             .post("/api/customer/save-for-later")
             .send({ productID: productID })
             .end((error, res) => {
@@ -233,21 +233,21 @@ describe("Save Product Comparison for Later", () => {
     }
 
     it("Response should not successfully save the product comparison for later when user is not logged in", () => {
-        // Expect the response status to be 201 (record created)
+        // Expect the response status to be 401
         expect(response).to.have.status(401);
         // Expect the response body to have a message
         expect(response.body).to.have.property("message");
     });
 
     it("Response should return a conflict if the product comparison already exists", (done) => {
-        chai.request("http://localhost:8080")
+        chai.request(azureUrl)
             .post("/api/customer/save-for-later")
             .send({ productID: productID })
             .end((error, res) => {
                 if (error) {
                     done(error);
                 } else {
-                    // Expect the response status to be 409 (Conflict)
+                    // Expect the response status to be 401
                     expect(res).to.have.status(401);
                     // Expect the response body to have a message
                     expect(res.body).to.have.property("message");
