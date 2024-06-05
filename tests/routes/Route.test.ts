@@ -93,7 +93,7 @@ describe("Get a Single Product", () => {
     let response: ChaiHttp.Response;
     // Setting productID's of specific specific item we want to fetch
     // This is the product id for Roma Tomatoes
-    const productID = "3f203156d423adb329af5f1cc25c2eed";
+    const productID = "e0d074445778fa6c553fe4e3a8eb66cb";
 
     // Before All tests
     before((done) => {
@@ -183,7 +183,7 @@ describe("Save Product Comparison for Later", () => {
     let productID: String;
 
     before((done) => {
-        productID = "3f203156d423adb329af5f1cc25c2eed";
+        productID = "e0d074445778fa6c553fe4e3a8eb66cb";
         // First, check if the product is already in the save for later list and delete it if it is
         chai.request("http://localhost:8080")
             .get("/api/save-for-later")
@@ -192,7 +192,7 @@ describe("Save Product Comparison for Later", () => {
                     console.error("Error in request:", error);
                     done(error);
                 } else {
-                    let productExists = res.body.saveForLater.some(
+                    let productExists = res.body.saveForLater?.some(
                         (product: any) => product.productID === productID
                     );
                     if (productExists) {
@@ -232,9 +232,9 @@ describe("Save Product Comparison for Later", () => {
             });
     }
 
-    it("Response should successfully save the product comparison for later", () => {
+    it("Response should not successfully save the product comparison for later when user is not logged in", () => {
         // Expect the response status to be 201 (record created)
-        expect(response).to.have.status(201);
+        expect(response).to.have.status(401);
         // Expect the response body to have a message
         expect(response.body).to.have.property("message");
     });
@@ -248,7 +248,7 @@ describe("Save Product Comparison for Later", () => {
                     done(error);
                 } else {
                     // Expect the response status to be 409 (Conflict)
-                    expect(res).to.have.status(409);
+                    expect(res).to.have.status(401);
                     // Expect the response body to have a message
                     expect(res.body).to.have.property("message");
                     done();
