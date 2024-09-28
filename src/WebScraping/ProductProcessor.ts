@@ -61,7 +61,6 @@ class ProductProcessor {
                         currProduct.productName,
                         currProduct.storeName
                     );
-                // TODO: Create update product function, if the product exists in the DB update it. Currently only add the product if it does not exist yet.
                 // If the product does not exist at the current store we will add it to the product comparison section
                 if (!doesProductExistAtCurrStore) {
                     await this.addToProductComparison(
@@ -117,7 +116,6 @@ class ProductProcessor {
             productRecord.productComparison.push(currProduct);
             await productRecord.save();
         }
-        // TODO: If the product does exist in the product comparison array, see if we need to update any of the fields
     }
 }
 export { ProductProcessor };

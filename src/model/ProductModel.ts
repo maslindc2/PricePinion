@@ -33,7 +33,6 @@ class ProductModel {
     public async createModel() {
         try {
             await Mongoose.connect(this.dbConnectionString);
-            console.log("Connected to MongoDB", Mongoose.models);
             if (Mongoose.models.Products) {
                 this.model = Mongoose.model<IProductModel>("Products");
             } else {

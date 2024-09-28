@@ -1,6 +1,5 @@
 import { Browser } from "puppeteer";
-import puppeteer from "puppeteer-extra";
-import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import puppeteer from "puppeteer";
 
 class BrowserInstance {
     /**
@@ -9,10 +8,11 @@ class BrowserInstance {
      * @returns {Promise<Browser>} browser instance that the webscraper can utilize.
      */
     public async createBrowserInstance(runHeadless: boolean): Promise<Browser> {
-        // Tell the puppeteer object to use the Stealth plugin to avoid sites detecting that we are scraping them.
-        puppeteer.use(StealthPlugin());
         // Create a browser instance
-        const browser = await puppeteer.launch({ headless: runHeadless });
+        // Disabling the chrome headless automation controlled flag, so now we are extra sneaky.
+        const browser = await puppeteer.launch({ headless: runHeadless, args:[
+            '--disable-blink-features=AutomationControlled',
+        ] });
         // Return the browser instance we created.
         return browser;
     }
