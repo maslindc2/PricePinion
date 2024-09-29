@@ -46,6 +46,7 @@ jobs:
         run: |
           cd createDB
           mongosh --file populateDB.js
+      
       # Setup Node with the version we will be using
       - name: Use Node.js
         uses: actions/setup-node@v4
@@ -60,19 +61,19 @@ jobs:
       
       # Start PricePinion backend and run it in the background
       - name: Start PricePinion Backend
-        run: |
-          npm install -g pm2
-          pm2 start dist/src/AppServer.js --name pricepinion-backend
-      
-      # Wait 20s to ensure the backend is ready
-      - name: Wait for PricePinion To Start
-        run: sleep 10
-      # Run tests
+        uses: JarvusInnovations/background-action@v1
+        with:
+          run: |
+            PORT=8080 node dist/src/AppServer.js &
+
+          wait-on: |
+            http://localhost:8080/api/products
+
+          tail: true
+
+          wait-for: 5s
+
       - name: Run Product Route Tests
         run: |
           npm run test:routes
-      
-      - name: Stop PricePinion Backend
-        run: |
-          pm2 stop pricepinion-backend
-          pm2 delete pricepinion-backend
+          
