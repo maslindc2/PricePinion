@@ -36,3 +36,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
           mongosh --version
+      - name: Populate MongoDB using Testing Dataset
+        run: |
+          cd createDB
+          mongosh --file populateDB.js
+      - name: Verify MongoDB Data
+        run: |
+          mongosh --eval '
+          use pricepinion;
+          const count = db.products.countDocuments();
+          print(`Number of documents in the collection: ${count}`);
+          '
