@@ -25,14 +25,13 @@ class App {
 
     // Run configuration methods on the Express instance.
     constructor(mongoDBConnection: string) {
-        console.log("MongoDB Connection String: ", mongoDBConnection);
         this.expressApp = express();
         this.middleware(mongoDBConnection);
         this.routes();
         this.Products = new ProductModel(mongoDBConnection);
         this.Customer = new CustomerModel(mongoDBConnection, this.Products);
         // Uncomment this to populate the DB
-        // this.scrapeAllStores();
+        //this.scrapeAllStores();
     }
 
     // Configure the express middleware
