@@ -17,7 +17,7 @@ jobs:
       GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
     services:
       mongodb:
-        image: mongo:4.4.6
+        image: mongo:6.0
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: pricepinion
@@ -60,18 +60,16 @@ jobs:
         run: npm run build
       
       # Start PricePinion backend and run it in the background
-      - name: Start PricePinion Backend
+      # Since GitHub doesn't like background operations (trust me I tried) this allows us to start the server,
+      # wait for our products route to become available and then execute our route tests.
+      - name: Bootstrap PricePinion Backend SUT
         uses: JarvusInnovations/background-action@v1
         with:
           run: |
             PORT=8080 node dist/src/AppServer.js &
-
           wait-on: |
             http://localhost:8080/api/products
-
           tail: true
-
-          wait-for: 5s
 
       - name: Run Product Route Tests
         run: |
