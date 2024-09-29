@@ -17,7 +17,7 @@ jobs:
       GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
     services:
       mongodb:
-        image: mongo:6.0
+        image: mongo:4.4.6
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: pricepinion
