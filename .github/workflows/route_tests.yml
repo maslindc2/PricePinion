@@ -42,4 +42,4 @@ jobs:
           mongosh --file populateDB.js
       - name: Verify MongoDB Data
         run: |
-          mongosh --eval "use pricepinion;" --eval "db.products.countDocuments();"
+          mongosh --username admin --password pricepinion --eval "use pricepinion;" --eval "db.products.countDocuments();"
