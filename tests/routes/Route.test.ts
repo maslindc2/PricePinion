@@ -4,7 +4,7 @@ import "mocha";
 import { AnyObject } from "mongoose";
 
 chai.use(chaiHTTP);
-const azureUrl= "https://pricepinion.azurewebsites.net";
+const azureUrl = "https://pricepinion.azurewebsites.net";
 describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response

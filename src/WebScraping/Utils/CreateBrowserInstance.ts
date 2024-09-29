@@ -10,9 +10,10 @@ class BrowserInstance {
     public async createBrowserInstance(runHeadless: boolean): Promise<Browser> {
         // Create a browser instance
         // Disabling the chrome headless automation controlled flag, so now we are extra sneaky.
-        const browser = await puppeteer.launch({ headless: runHeadless, args:[
-            '--disable-blink-features=AutomationControlled',
-        ] });
+        const browser = await puppeteer.launch({
+            headless: runHeadless,
+            args: ["--disable-blink-features=AutomationControlled"],
+        });
         // Return the browser instance we created.
         return browser;
     }
