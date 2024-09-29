@@ -17,8 +17,8 @@ describe("createBrowserInstance", () => {
         expect(browser.constructor.name).to.equal("CdpBrowser");
         // Get the browser agent
         const browserConfig = await browser.userAgent();
-        // Check that it doesn't include headless, if it does that means StealthPlugin failed to set the user agent
-        expect(browserConfig).to.include("Headless");
+        // Check that it doesn't include headless, if it does that means User-Agents did not apply a random desktop user agent
+        expect(browserConfig).to.not.include("Headless");
         // Close the browser instance
         await browser.close();
     });
