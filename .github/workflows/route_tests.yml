@@ -60,13 +60,5 @@ jobs:
       
       # Start PricePinion backend and run it in the background
       - name: Start PricePinion Backend
-        run: node dist/src/AppServer.js &
-      
-      # Wait 20s to ensure the backend is ready
-      - name: Wait for PricePinion To Start
-        run: sleep 20
-      
-      - name: Run Product Route Tests
-        run: |
-          npm run test:routes
+        run: node dist/src/AppServer.js & npm run test:routes
           
