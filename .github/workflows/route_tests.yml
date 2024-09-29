@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
+      # Installing mongosh in order to populate the database with our test data set.
       - name: Install mongosh
         run: |
           sudo apt-get install gnupg
@@ -36,16 +36,33 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
           mongosh --version
-
+      
+      # Uses our populateDB script for loading our test dataset 
       - name: Populate MongoDB using Testing Dataset
         run: |
           cd createDB
           mongosh --file populateDB.js
-      
+      # Setup Node with the version we will be using
       - name: Use Node.js
         uses: actions/setup-node@v4
         with: 
-          node-version: '20.x'
+          node-version: 'lts/iron'
 
       - name: Install Dependencies
         run: npm ci
+      
+      - name: Compile PricePinion Backend Typescript Files
+        run: npm run build
+      
+      # Start PricePinion backend and run it in the background
+      - name: Start PricePinion Backend
+        run: node dist/src/AppServer.js &
+      
+      # Wait 20s to ensure the backend is ready
+      - name: Wait for PricePinion To Start
+        run: sleep 20
+      
+      - name: Run Product Route Tests
+        run: |
+          npm run test:routes
+          

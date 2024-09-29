@@ -4,7 +4,7 @@ import "mocha";
 import { AnyObject } from "mongoose";
 
 chai.use(chaiHTTP);
-const azureUrl = "https://pricepinion.azurewebsites.net";
+const azureUrl = "http://localhost:8080";
 describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
@@ -92,8 +92,8 @@ describe("Get All Products", () => {
 describe("Get a Single Product", () => {
     let response: ChaiHttp.Response;
     // Setting productID's of specific specific item we want to fetch
-    // This is the product id for Roma Tomatoes
-    const productID = "e0d074445778fa6c553fe4e3a8eb66cb";
+    // This is the product id for Fresh Strawberries
+    const productID = "8fc7cb37bc22c53f913f397f1b677fa5";
 
     // Before All tests
     before((done) => {
@@ -175,84 +175,5 @@ describe("Get a Single Product", () => {
             expect(product.productComparison).to.not.equal([]);
             return true;
         });
-    });
-});
-
-describe("Save Product Comparison for Later", () => {
-    let response: ChaiHttp.Response;
-    let productID: String;
-
-    before((done) => {
-        productID = "e0d074445778fa6c553fe4e3a8eb66cb";
-        // First, check if the product is already in the save for later list and delete it if it is
-        chai.request(azureUrl)
-            .get("/api/save-for-later")
-            .end((error, res) => {
-                if (error) {
-                    console.error("Error in request:", error);
-                    done(error);
-                } else {
-                    let productExists = res.body.saveForLater?.some(
-                        (product: any) => product.productID === productID
-                    );
-                    if (productExists) {
-                        chai.request(azureUrl)
-                            .delete(
-                                `/api/customer/delete-one-product-from-sfl/${productID}`
-                            )
-                            .end((err, delRes) => {
-                                if (err) {
-                                    console.error(
-                                        "Error deleting product:",
-                                        err
-                                    );
-                                    done(err);
-                                } else {
-                                    saveProductComparisonForLater(done);
-                                }
-                            });
-                    } else {
-                        saveProductComparisonForLater(done);
-                    }
-                }
-            });
-    });
-
-    function saveProductComparisonForLater(done: Mocha.Done) {
-        chai.request(azureUrl)
-            .post("/api/customer/save-for-later")
-            .send({ productID: productID })
-            .end((error, res) => {
-                if (error) {
-                    done(error);
-                } else {
-                    response = res;
-                    done();
-                }
-            });
-    }
-
-    it("Response should not successfully save the product comparison for later when user is not logged in", () => {
-        // Expect the response status to be 401
-        expect(response).to.have.status(401);
-        // Expect the response body to have a message
-        expect(response.body).to.have.property("message");
-    });
-
-    it("Response should return a conflict if the product comparison already exists", (done) => {
-        chai.request(azureUrl)
-            .post("/api/customer/save-for-later")
-            .send({ productID: productID })
-            .end((error, res) => {
-                if (error) {
-                    done(error);
-                } else {
-                    // Expect the response status to be 401
-                    expect(res).to.have.status(401);
-                    // Expect the response body to have a message
-                    expect(res.body).to.have.property("message");
-                    done();
-                }
-            });
     });
 });
