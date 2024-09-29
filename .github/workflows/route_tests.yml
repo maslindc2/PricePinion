@@ -10,6 +10,11 @@ on:
 jobs:
   route_tests:
     runs-on: ubuntu-20.04
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
     services:
       mongodb:
         image: mongo:4.4.6
@@ -24,7 +29,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - uses: actions/checkout@v4
       # Installing mongosh in order to populate the database with our test data set.
