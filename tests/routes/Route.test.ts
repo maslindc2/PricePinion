@@ -4,12 +4,12 @@ import "mocha";
 import { AnyObject } from "mongoose";
 
 chai.use(chaiHTTP);
-const azureUrl = "http://localhost:8080";
+const pricePinionUrl = "http://localhost:8080";
 describe("Get All Products", () => {
     let response: ChaiHttp.Response;
     // Before all tests make a call to our server to get all products and store the response
     before((done) => {
-        chai.request(azureUrl)
+        chai.request(pricePinionUrl)
             .get("/api/products")
             .end((error, res) => {
                 response = res;
@@ -98,7 +98,7 @@ describe("Get a Single Product", () => {
     // Before All tests
     before((done) => {
         // First get the response for a product with comparisons
-        chai.request(azureUrl)
+        chai.request(pricePinionUrl)
             .get(`/api/product/${productID}`)
             .end((error, res) => {
                 response = res;
