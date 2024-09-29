@@ -60,5 +60,10 @@ jobs:
       
       # Start PricePinion backend and run it in the background
       - name: Start PricePinion Backend
-        run: node dist/src/AppServer.js & npm run test:routes
+        run: |
+          nohup node dist/src/AppServer.js > nohup.out 2> nohup.err < /dev/null &
+      
+      - name: Run Product Route Tests
+        run: |
+          npm run test:routes
           
