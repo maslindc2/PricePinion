@@ -61,13 +61,18 @@ jobs:
       # Start PricePinion backend and run it in the background
       - name: Start PricePinion Backend
         run: |
-          nohup node dist/src/AppServer.js > nohup.out 2> nohup.err < /dev/null &
+          npm install -g pm2
+          pm2 start dist/src/AppServer.js --name pricepinion-backend
       
       # Wait 20s to ensure the backend is ready
       - name: Wait for PricePinion To Start
         run: sleep 10
-      
+      # Run tests
       - name: Run Product Route Tests
         run: |
           npm run test:routes
-          
+      
+      - name: Stop PricePinion Backend
+        run: |
+          pm2 stop pricepinion-backend
+          pm2 delete pricepinion-backend
