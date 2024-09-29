@@ -42,8 +42,4 @@ jobs:
           mongosh --file populateDB.js
       - name: Verify MongoDB Data
         run: |
-          count=$(mongosh --quiet --eval '
-          use pricepinion;
-          db.products.countDocuments();
-          ')
-          echo "Number of documents in the collection: $count"
+          mongosh --eval "use pricepinion;" --eval "db.products.countDocuments();"
