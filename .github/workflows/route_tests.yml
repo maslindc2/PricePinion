@@ -1,0 +1,77 @@
+name: RouteTesting
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  route_tests:
+    runs-on: ubuntu-20.04
+    env:
+      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+      GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+      GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
+    services:
+      mongodb:
+        image: mongo:4.4.6
+        env:
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          MONGO_INITDB_DATABASE: ${{ secrets.MONGO_INITDB_DATABASE }}
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      # Installing mongosh in order to populate the database with our test data set.
+      - name: Install mongosh
+        run: |
+          sudo apt-get install gnupg
+          wget -qO- https://www.mongodb.org/static/pgp/server-7.0.asc | sudo tee /etc/apt/trusted.gpg.d/server-7.0.asc
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-mongosh
+          mongosh --version
+      
+      # Uses our populateDB script for loading our test dataset 
+      - name: Populate MongoDB using Testing Dataset
+        run: |
+          cd createDB
+          mongosh --file populateDB.js
+      
+      # Setup Node with the version we will be using
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 'lts/iron'
+
+      - name: Install Dependencies
+        run: npm ci
+      
+      - name: Compile PricePinion Backend Typescript Files
+        run: npm run build
+      
+      # Start PricePinion backend and run it in the background
+      # Since GitHub doesn't like background operations (trust me I tried) this allows us to start the server,
+      # wait for our products route to become available and then execute our route tests.
+      - name: Bootstrap PricePinion Backend SUT
+        uses: JarvusInnovations/background-action@v1
+        with:
+          run: |
+            PORT=8080 node dist/src/AppServer.js &
+          wait-on: |
+            http://localhost:8080/api/products
+          tail: true
+
+      - name: Run Product Route Tests
+        run: |
+          npm run test:routes
+          
