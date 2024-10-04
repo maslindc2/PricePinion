@@ -19,9 +19,9 @@ jobs:
       mongodb:
         image: mongo:4.4.6
         env:
-          MONGO_INITDB_ROOT_USERNAME: admin
-          MONGO_INITDB_ROOT_PASSWORD: pricepinion
-          MONGO_INITDB_DATABASE: pricepinion
+          MONGO_INITDB_ROOT_USERNAME: ${{ secrets.MONGO_INITDB_ROOT_USERNAME }}
+          MONGO_INITDB_ROOT_PASSWORD: ${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}
+          MONGO_INITDB_DATABASE: ${{ secrets.MONGO_INITDB_DATABASE }}
         ports:
           - 27017:27017
         options: >-
@@ -40,7 +40,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mongodb-mongosh
           mongosh --version
-
+      
       # Uses our populateDB script for loading our test dataset 
       - name: Populate MongoDB using Testing Dataset
         run: |
@@ -56,9 +56,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       
-      # Use the build:testing command to use the correct Mongo URI
       - name: Compile PricePinion Backend Typescript Files
-        run: npm run build:testing
+        run: npm run build
       
       # Start PricePinion backend and run it in the background
       # Since GitHub doesn't like background operations (trust me I tried) this allows us to start the server,
@@ -70,7 +69,6 @@ jobs:
             PORT=8080 node dist/src/AppServer.js &
           wait-on: |
             http://localhost:8080/api/products
-          wait-for: 5m
           tail: true
 
       - name: Run Product Route Tests
