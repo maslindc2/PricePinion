@@ -11,7 +11,7 @@ jobs:
   route_tests:
     runs-on: ubuntu-20.04
     env:
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
+      MONGODB_URI: ${{ secrets.MONGODB_TEST_URI }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
       GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
       GOOGLE_CALLBACK_URL: ${{ secrets.GOOGLE_CALLBACK_URL }}
@@ -67,6 +67,7 @@ jobs:
         with:
           run: |
             PORT=8080 node dist/src/AppServer.js &
+          # Use only this for wait lifecycle hook, the others will cause the action to break
           wait-on: |
             http://localhost:8080/api/products
           tail: true
