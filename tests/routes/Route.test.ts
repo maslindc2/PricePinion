@@ -92,8 +92,8 @@ describe("Get All Products", () => {
 describe("Get a Single Product", () => {
     let response: ChaiHttp.Response;
     // Setting productID's of specific specific item we want to fetch
-    // This is the product id for Fresh Strawberries
-    const productID = "8fc7cb37bc22c53f913f397f1b677fa5";
+    // This is the product id for Cucumber's
+    const productID = "82a4aa7747e755b724fc333a436bbaa6";
 
     // Before All tests
     before((done) => {
