@@ -5408,7 +5408,8 @@ var nf = (() => {
             get browserPageId() {
                 return this.canceledNavigationResolution !== "computed"
                     ? this.currentPageId
-                    : this.restoredState()?.ɵrouterPageId ?? this.currentPageId;
+                    : (this.restoredState()?.ɵrouterPageId ??
+                          this.currentPageId);
             }
             getRouterState() {
                 return this.routerState;
