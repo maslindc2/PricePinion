@@ -8,6 +8,7 @@
         "test:routes": "NODE_ENV=test mocha --timeout 1000000 -r ts-node/register 'tests/routes/*.ts'",
         "test:scrapers": "mocha --timeout 1000000 -r ts-node/register 'tests/webscraper/*.ts'",
         "build": "tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
+        "build:testing": "NODE_ENV=test tsc --project tsconfig.json && tsc-alias -p tsconfig.json",
         "dev": "npm run build && node dist/src/AppServer.js",
         "dev:watch": "nodemon --watch 'src/**/*.ts' --exec npm run dev",
         "format": "prettier --ignore-path .gitignore --write \"**/*.+(js|ts|json)\""

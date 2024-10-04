@@ -57,7 +57,7 @@ jobs:
         run: npm ci
       
       - name: Compile PricePinion Backend Typescript Files
-        run: NODE_ENV=test tsc --project tsconfig.json && tsc-alias -p tsconfig.json
+        run: npm run build:testing
       
       # Start PricePinion backend and run it in the background
       # Since GitHub doesn't like background operations (trust me I tried) this allows us to start the server,
