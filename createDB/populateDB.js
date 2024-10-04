@@ -8,7 +8,7 @@ const productsCollectionAsJSON = fs.readFileSync("pricepinion.products.json");
 const productsObj = JSON.parse(productsCollectionAsJSON);
 
 // Connect to the local mongodb instance using the admin login
-db = connect(`mongodb://admin:pricepinion@localhost:27017/`);
+db = connect(`mongodb://admin:pricepinion@localhost:27017/pricepinion?authSource=admin`);
 
 // Get the sibling db (this will create the db if it doesn't exist already)
 db = db.getSiblingDB("pricepinion");
