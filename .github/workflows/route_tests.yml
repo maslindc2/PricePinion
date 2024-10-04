@@ -41,6 +41,12 @@ jobs:
           sudo apt-get install -y mongodb-mongosh
           mongosh --version
       
+      - name: Check secret length
+        run: |
+          echo "Secret length: ${#${{ secrets.MONGO_INITDB_ROOT_USERNAME }}}"
+          echo "Secret length: ${#${{ secrets.MONGO_INITDB_ROOT_PASSWORD }}}"
+          echo "Secret length: ${#${{ secrets.MONGO_INITDB_DATABASE }}}"
+
       # Uses our populateDB script for loading our test dataset 
       - name: Populate MongoDB using Testing Dataset
         run: |
