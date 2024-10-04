@@ -69,6 +69,7 @@ jobs:
             PORT=8080 node dist/src/AppServer.js &
           wait-on: |
             http://localhost:8080/api/products
+          wait-for: 1m
           tail: true
 
       - name: Run Product Route Tests
