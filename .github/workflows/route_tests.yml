@@ -56,6 +56,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
       
+      # Use the build:testing command to use the correct Mongo URI
       - name: Compile PricePinion Backend Typescript Files
         run: npm run build:testing
       
