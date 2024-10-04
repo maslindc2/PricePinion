@@ -12,7 +12,7 @@ const mongoURI = process.env.NODE_ENV === 'test'
 // Defining the port number to use
 // Default is port 8080, you can set the env var to a custom port number
 const port = process.env.PORT;
-const mongoDBConnection = process.env.MONGODB_URI;
+const mongoDBConnection = mongoURI;
 
 const server = new App(mongoDBConnection).expressApp;
 server.listen(port);
