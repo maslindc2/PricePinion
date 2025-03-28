@@ -1,7 +1,7 @@
 {
-    "name": "pricepinion-backend",
+    "name": "pricepinion",
     "version": "1.5.0",
-    "description": "PricePinion's backend containing webscraper's for stores, routes, tests, and SSO.",
+    "description": "PricePinion's main repo containing Angular files and webscraper's for stores, routes, tests, and SSO.",
     "main": "AppServer.js",
     "scripts": {
         "test": "mocha --timeout 1000000 -r ts-node/register 'tests/**/*.ts'",
