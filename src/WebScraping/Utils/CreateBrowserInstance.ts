@@ -16,6 +16,13 @@ class BrowserInstance {
             headless: runHeadless,
             args: [
                 "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-infobars",
+                "--disable-dev-shm-usage",
+                "--ignore-certificate-errors",
+                "--ignore-certificate-errors-spki-list",
+                "--enable-features=NetworkService,NetworkServiceInProcess",
                 `--user-agent=${userAgent.toString()}`, // Setting a random user agent
             ],
         });
