@@ -9,7 +9,7 @@ on:
 
 jobs:
   route_tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
       MONGODB_URI: ${{ secrets.MONGODB_TEST_URI }}
       GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
