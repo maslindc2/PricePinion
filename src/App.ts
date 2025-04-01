@@ -9,12 +9,10 @@ import dotenv from "dotenv";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import passport from "passport";
+import "./config/passport";
 
 // Load environment variables from .env file
 dotenv.config();
-
-// Import Passport configuration
-import "./config/passport";
 
 // Creates and configures an ExpressJS web server.
 class App {
@@ -138,7 +136,7 @@ class App {
             "/auth/google/callback",
             passport.authenticate("google", { failureRedirect: "/" }),
             (req, res) => {
-                res.redirect("https://pricepinion.azurewebsites.net/"); // Redirect to your Angular dashboard
+                res.redirect(`${process.env.SITE_BASE_URL}`); // Redirect to your Angular dashboard
             }
         );
 
@@ -152,7 +150,7 @@ class App {
                         return res.status(500).send("Failed to logout");
                     }
                     res.clearCookie("connect.sid");
-                    res.redirect("https://pricepinion.azurewebsites.net/"); // Redirect to your Angular homepage
+                    res.redirect(`${process.env.SITE_BASE_URL}`); // Redirect to your Angular homepage
                 });
             });
         });

@@ -1,4 +1,4 @@
-# PricePinion-Backend
+# PricePinion
 
 ![Web Scraping](https://github.com/PricePinion/Webscraper/actions/workflows/unit_tests.yml/badge.svg)
 
