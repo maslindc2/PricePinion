@@ -1,6 +1,21 @@
 name: RouteTesting
 on:
   workflow_call:
+    secrets:
+      MONGODB_TEST_URI:
+        required: true
+      GOOGLE_CLIENT_ID:
+        required: true
+      GOOGLE_CLIENT_SECRET:
+        required: true
+      GOOGLE_CALLBACK_URL:
+        required: true
+      MONGO_INITDB_ROOT_USERNAME:
+        required: true
+      MONGO_INITDB_ROOT_PASSWORD:
+        required: true
+      MONGO_INITDB_DATABASE:
+        required: true
   pull_request:
     branches:
       - main
